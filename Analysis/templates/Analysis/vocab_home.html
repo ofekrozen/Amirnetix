@@ -1,0 +1,124 @@
+{% extends "Analysis/layout.html" %}
+    
+    {% block body %}
+    <div dir="rtl" class="container">
+        <h1>ניתוח אוצר המילים של {{user}}</h1>
+        
+        <!-- Filter Section -->
+        <div class="filter-section" dir="rtl">
+            <!-- Search Bar -->
+            <input type="text" id="search-bar" placeholder="חפש מילים..." onkeyup="filterSimulators()">
+
+            <!-- Filter by Level -->
+            <select name="level" id="level-filter" onchange="filterSimulators()">
+                <!-- Add a for loop for the level of the word -->
+                <option value="all">רמת תדירות</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+
+            <!-- Filter by Subject -->
+            <select name="subject" id="subject-filter" onchange="filterSimulators()">
+                <option value="all">חלק במשפט</option>
+                <option value="sentence-completion">תואר</option>
+                <option value="restatements">פועל</option>
+                <option value="reading-comprehension">עצם</option>
+            </select>
+
+            <!-- Filter by Completion Status -->
+            <select name="status" id="status-filter" onchange="filterSimulators()">
+                <option value="all">סימון</option>
+                <option value="done">סימון "✓"</option>
+                <option value="not-done">סימון "-"</option>
+                <option value="not-done">סימון "✗"</option>
+            </select>
+        </div>
+        <!-- Overview Statistics -->
+        <div class="stats">
+            <div class="card">
+                <div class="card-body center">
+                    <h5 class="card-title">סה"כ מילים שסומנו</h5>
+                    <h4 class="card-body center"><b>{{ total_words }}</b></h4>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body center">
+                    <h5 class="card-title">סימון "✓"</h5>
+                    <h4 class="card-body center"><b>{{ perfect_percentage }}%</b></h4>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body center">
+                    <h5 class="card-title">סימון "-"</h5>
+                    <h4 class="card-body center"><b>{{ partial_percentage }}%</b></h4>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body center">
+                    <h5 class="card-title">סימון "✗"</h5>
+                    <h4 class="card-body center"><b>{{ not_at_all_percentage }}%</b></h4>
+                </div>
+            </div>
+            <!-- <div class="card-wrapper">סה"כ מילים שסומנו {{ total_words }}</div>
+            <div>סימון "✓": {{ perfect_percentage }}%</div>
+            <div>סימון "-": {{ partial_percentage }}%</div>
+            <div>סימון "✗": {{ not_at_all_percentage }}%</div> -->
+        </div>
+        
+        <!-- Familiarity Chart -->
+        <canvas id="familiarityChart" class="chart"></canvas>
+        
+        <!-- Detailed Table -->
+        <h2>Detailed Word Progress</h2>
+        <table class="metrics-table" dir="rtl">
+            <thead>
+                <tr>
+                    <th>המילה</th>
+                    <th>תרגום לעברית</th>
+                    <th>רמת התדירות</th>
+                    <th>סימון</th>
+                    <th>תאריך סימון</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for word_knowledge in words_knowledge %}
+                <tr>
+                    <td><b>{{ word_knowledge.word.eng_word }}</b></td>
+                    <td>{{ word_knowledge.word.heb_word }}</td>
+                    <td>{{ word_knowledge.word.word_level }}</td>
+                    {% if word_knowledge.familiarity == 1 %}
+                        <td class="text-success">{{ word_knowledge.get_familiarity_display }}</td>
+                    {% elif word_knowledge.familiarity == 2 %}
+                        <td class="text-warning">{{ word_knowledge.get_familiarity_display }}</td>
+                    {% else %}
+                        <td class="text-danger">{{ word_knowledge.get_familiarity_display }}</td>
+                    {% endif %}
+                    <!-- <td>{{ word_knowledge.get_familiarity_display }}</td> -->
+                    <td>{{ word_knowledge.selection_date|date:"Y-m-d" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endblock %}
+    {% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart Data
+        const ctx = document.getElementById('familiarityChart').getContext('2d');
+        const data = {
+            labels: ['סימון "✓"', 'סימון "-"', 'סימון "✗"'],
+            datasets: [{
+                label: 'Familiarity Levels',
+                data: [{{ perfect_count }}, {{ partial_count }}, {{ not_at_all_count }}],
+                backgroundColor: ['#4caf50', '#ffc107', '#f44336']
+            }]
+        };
+        const config = {
+            type: 'pie',
+            data: data
+        };
+        new Chart(ctx, config);
+    </script>
+{% endblock %}

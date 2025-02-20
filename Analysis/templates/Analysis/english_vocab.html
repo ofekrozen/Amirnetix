@@ -1,0 +1,166 @@
+{% extends 'Analysis/layout.html' %}
+{% block body %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<div class="container mt-4">
+    <h2 class="mb-4">Learn English Words</h2>
+    <!-- {% if words_list %}
+        {% for word in words_list %}
+        word: {{word.word}} ; familiarity: {{word.familiarity}}
+        {% endfor %}
+    {% endif %} -->
+    <!-- Level filter buttons -->
+    <div class="level-filter">
+        {% for level in levels %}
+            <button class="btn level-btn" data-level="{{level}}">Level {{level}}</button>
+        {% endfor %}
+    </div>
+    <!-- Familiarity Level Filter -->
+    <div>
+        <label>Select Familiarity Level:</label>
+        <div id="fam-level-filter" class="fam-filter-buttons">
+            <button class="btn btn-secondary fam-filter-btn" data-familiarity="-1">Show All</button>
+            <button class="btn btn-secondary fam-filter-btn" data-familiarity="0">O (Not Selected)</button>
+            <button class="btn btn-secondary fam-filter-btn" data-familiarity="1">✓ (Perfect)</button>
+            <button class="btn btn-secondary fam-filter-btn" data-familiarity="2">– (Partially)</button>
+            <button class="btn btn-secondary fam-filter-btn" data-familiarity="3">✗ (Not at All)</button>
+        </div>
+    </div>
+    
+    <div class="card-container">
+        {% for word in words_list %}
+        <!-- Display only words of the selected level -->
+        <div class="word" data-word-level="{{ word.word.word_level }}" data-word-fam = "{{ word.familiarity }}">
+            <div class="word-card">
+                <div class="word-card-inner">
+                    <div class="word-card-front">
+                        <h3>{{ word.word.eng_word }}</h3>
+                    </div>
+                    <div class="word-card-back">
+                        <h3>{{ word.word.heb_word }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="understanding-options">
+                {% for fam_level in fam_levels %}
+                {% if word.familiarity == fam_level.0 %}
+                    {% if word.familiarity == 1 %}
+                    <button class="btn btn-success fam-btn selected" data-fam-level="{{ fam_level.0 }}" data-word-id="{{ word.word.id }}">{{fam_level.1}}</button>
+                    {% elif word.familiarity == 2 %}
+                    <button class="btn btn-warning fam-btn selected" data-fam-level="{{ fam_level.0 }}" data-word-id="{{ word.word.id }}">{{fam_level.1}}</button>
+                    {% else %}
+                    <button class="btn btn-danger fam-btn selected" data-fam-level="{{ fam_level.0 }}" data-word-id="{{ word.word.id }}">{{fam_level.1}}</button>
+                    {% endif %}
+                {% else %}
+                    <button class="btn btn-secondary fam-btn unselected" data-fam-level="{{ fam_level.0 }}" data-word-id="{{ word.word.id }}">{{fam_level.1}}</button>
+                {% endif %}
+                {% endfor %}
+                <!-- <button class="btn btn-success mark-understanding" data-word-id="{{ word.id }}" data-level="1">Perfect</button>
+                <button class="btn btn-warning mark-understanding" data-word-id="{{ word.id }}" data-level="2">Partially</button>
+                <button class="btn btn-danger mark-understanding" data-word-id="{{ word.id }}" data-level="3">Not at All</button> -->
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    var selectedLevel = 1;
+    var selectedFam = -1;
+    document.addEventListener('DOMContentLoaded',()=>{
+        // Initially filter only level 1 words
+        document.querySelectorAll('.word').forEach(word => {
+            word.style.display = word.getAttribute('data-word-level') === "1" ? 'block' : 'none';
+        });
+    });
+
+    // Filter by level
+    document.querySelectorAll('.level-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            selectedLevel = button.getAttribute('data-level');
+            document.querySelectorAll('.word').forEach(word => {
+                word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel? 'block' : 'none';
+            });
+        });
+    });
+
+    // Filter by familiarity
+    document.querySelectorAll('.fam-filter-btn').forEach(button =>{
+        button.addEventListener('click',()=>{
+            selectedFam = button.getAttribute('data-familiarity');
+            document.querySelectorAll('.word').forEach(word => {
+                if (selectedFam == -1){
+                    word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel ? 'block' : 'none';
+                }
+                else{
+                    word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel && word.getAttribute('data-word-fam') == ""+selectedFam ? 'block' : 'none';
+                }
+            })
+        })
+    })
+    
+    // Handle card flip
+    document.querySelectorAll('.word-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+    });
+
+    // Handle familiarity level update
+    document.querySelectorAll('.fam-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const wordId = this.getAttribute('data-word-id');
+        const famLevel = this.getAttribute('data-fam-level');
+
+        // AJAX request to update familiarity level
+        /* ******** Add update_familiarity function on views ********* */
+        fetch('/Analysis/update_familiarity/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}' // Django CSRF token
+            },
+            body: JSON.stringify({
+                'word_id': wordId,
+                'fam_level': famLevel
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update familiarity level - 1');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update button UI to reflect new familiarity level
+                document.querySelectorAll(`[data-word-id="${wordId}"]`).forEach(btn => {
+                    btn.classList.replace('selected','unselected');
+                    btn.classList.replace('btn-success', 'btn-secondary');
+                    btn.classList.replace('btn-warning', 'btn-secondary');
+                    btn.classList.replace('btn-danger', 'btn-secondary');
+                });
+                if(this.getAttribute('data-fam-level') == 1){
+                    this.classList.replace('btn-secondary', 'btn-success');
+                }
+                else if(this.getAttribute('data-fam-level') == 2){
+                    this.classList.replace('btn-secondary', 'btn-warning');
+                }
+                else{
+                    this.classList.replace('btn-secondary', 'btn-danger');
+                }
+                this.classList.replace('unselected','selected');
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Failed to update familiarity level. - 2');
+        });
+    });
+});
+
+</script>
+{% endblock %}

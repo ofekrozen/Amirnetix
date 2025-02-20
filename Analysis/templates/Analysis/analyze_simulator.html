@@ -1,0 +1,133 @@
+{% extends 'Analysis/layout.html' %}
+{% load static %}
+{% block body %}
+{% if simulator_attempt %}
+<div class="analysis-container">
+    <h2 class="simulator-title" dir="rtl">{{ simulator_attempt.simulator.simulator }} מתאריך {{simulator_attempt.simulator.start_time}}</h2>
+    <div class="metrics-container">
+    <h3 style="text-align: center;" dir="rtl">ציון משוער: {{simulator_attempt.simulator.Success_Rates.Total.success_rate|add:50}}</h3>
+        
+        {{simulator_attempt.simulator.Time_Per_Question}}
+        <table class="metrics-table" dir="rtl">
+            <thead>
+                <tr>
+                    <th>מדד</th>
+                    <th>סה"כ</th>
+                    <th>השלמות משפטים</th>
+                    <th>טקסט</th>
+                    <th>ניסוח מחדש</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>שיעור הצלחה</th>
+                    <td>{{simulator_attempt.simulator.Success_Rates.Total.correct}}/{{simulator_attempt.simulator.Success_Rates.Total.total}} | {{simulator_attempt.simulator.Success_Rates.Total.success_rate}}%</td>
+                    <td>{{simulator_attempt.simulator.Success_Rates.SC.correct}}/{{simulator_attempt.simulator.Success_Rates.SC.total}} | {{simulator_attempt.simulator.Success_Rates.SC.success_rate}}%</td>
+                    <td>{{simulator_attempt.simulator.Success_Rates.RC.correct}}/{{simulator_attempt.simulator.Success_Rates.RC.total}} | {{simulator_attempt.simulator.Success_Rates.RC.success_rate}}%</td>
+                    <td>{{simulator_attempt.simulator.Success_Rates.RS.correct}}/{{simulator_attempt.simulator.Success_Rates.RS.total}} | {{simulator_attempt.simulator.Success_Rates.RS.success_rate}}%</td>
+                </tr>
+                <tr>
+                    <th>זמן מענה ממוצע לשאלה</th>
+                    <td>{{simulator_attempt.simulator.Answer_Times.averages.Total}} שניות</td>
+                    <td>{{simulator_attempt.simulator.Answer_Times.averages.SC}} שניות</td>
+                    <td>{{simulator_attempt.simulator.Answer_Times.averages.RC}} שניות</td>
+                    <td>{{simulator_attempt.simulator.Answer_Times.averages.RS}} שניות</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    {% for chapter in simulator_attempt.chapters %}
+    <div class="chapter">
+        <h3 class="chapter-title" onclick="toggleChapter(this)">Chapter number {{chapter.chapter.order}} - {{ chapter.chapter.get_chapter_type_display }} <span>({{chapter.correct_cnt}}/{{chapter.q_cnt}})</span></h3>
+        <div class="chapter-content">
+            {% if chapter.chapter.reading_text %}
+            <div class="card text-card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <div class="card-front">
+                        {{chapter.chapter.reading_text|linebreaks}}
+                    </div>
+                    <div class="card-back hidden">
+                        {{chapter.chapter.hebrew_text|linebreaks}}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% for question in chapter.questions %}
+            
+            <!-- Question Card with Flip Feature -->
+            <div class="card question-card" onclick="flipCard(this)">
+                <div class="card-inner">
+                    <!-- Front Side (Question Text) -->
+                    <div class="card-front">
+                        <h5 class="card-title">Question {{ question.question.order }}</h5>
+                        <p class="card-text">{{ question.question.description }}</p>
+                    </div>
+                    <!-- Back Side (Hebrew Translation) -->
+                    <div class="card-back hidden">
+                        <h5 class="card-title">Question {{ question.question.order }}</h5>
+                        <p class="card-text">{{ question.question.hebrew_desc }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answer List -->
+            <ul class="list-group list-group-flush">
+                {% for answer in question.answers %}
+                <li class="list-group-item card" onclick="flipCard(this)">
+                    <div class="card-inner">
+                        <!-- Front Side (Answer Text) -->
+                        <div class="card-front">
+                            {% if not answer.is_selected and answer.is_correct %}
+                                <span class="yellow-marker">-</span>
+                            {% elif answer.is_correct and answer.is_selected %}
+                                <span class="correct-icon">&#10004;</span>
+                            {% elif answer.is_selected and not answer.is_correct %}
+                                <span class="wrong-icon">&#10008;</span>
+                            {% endif %}
+                            {{ answer.answer.description }}
+                        </div>
+                        <!-- Back Side (Hebrew Translation) -->
+                        <div class="card-back hidden">
+                            {% if not answer.is_selected and answer.is_correct %}
+                                <span class="yellow-marker">-</span>
+                            {% elif answer.is_correct and answer.is_selected %}
+                                <span class="correct-icon">&#10004;</span>
+                            {% elif answer.is_selected and not answer.is_correct %}
+                                <span class="wrong-icon">&#10008;</span>
+                            {% endif %}
+                            {{ answer.answer.hebrew_desc }}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <p>No simulator attempts found.</p>
+{% endif %}
+
+<!-- JavaScript for Interactivity -->
+<script>
+    function toggleChapter(element) {
+        element.classList.toggle('active');
+        var content = element.nextElementSibling;
+        content.style.display = content.style.display === "block" ? "none" : "block";
+    }
+
+    // Flip Card Function
+    function flipCard(element) {
+        element.classList.toggle('flipped');
+        let children = element.firstElementChild.children;
+        for (let i = 0;i < children.length; i++) {
+            console.log(children[i]);
+            children[i].classList.toggle('hidden');
+        };
+    }
+</script>
+{% endblock %}

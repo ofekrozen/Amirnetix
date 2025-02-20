@@ -1,0 +1,79 @@
+{% extends 'Management/layout.html' %}
+{% block body %}
+{% if new_simulator %}
+<form class="form-edit" method="post" action="{% url 'save_new_simulator' %}">
+{% csrf_token %}
+{% for chapter in new_simulator %}
+<div class="chapter">
+    <h2>Chapter {{chapter.order}} - {{chapter.type}}</h2>
+    <input name="chapter_type-{{chapter.order}}" value="{{chapter.type}}" hidden>
+    {% if chapter.text %}
+    <div class="text">
+        <textarea name="text-{{chapter.order}}" rows="30" cols="70">{{chapter.text}}</textarea>
+        <textarea name="heb_text-{{chapter.order}}" rows="30" cols="70">{{chapter.hebrew_text}}</textarea>
+    </div>
+    {% endif %}
+    {% for question in chapter.questions %}
+    <div class="question-edit">
+        <h3>Question {{question.order}}</h3>
+        <textarea name="question-{{chapter.order}}-{{question.order}}" rows="3" cols="50">{{question.question.description}}</textarea>
+        <textarea name="heb_question-{{chapter.order}}-{{question.order}}" rows="3" cols="50">{{question.question.hebrew_desc}}</textarea>
+        <div style="display: flex;">
+        {% for answer in question.answers %}
+        <section>
+            <span>Answer {{forloop.counter}}</span>
+            <textarea name="answer_desc-{{chapter.order}}-{{question.order}}-{{answer.order}}" rows="5" cols="30">{{answer.description}}</textarea>
+            <textarea name="heb_answer_desc-{{chapter.order}}-{{question.order}}-{{answer.order}}" rows="5" cols="30">{{answer.hebrew_desc}}</textarea>
+            {% if answer.is_correct %}
+                <input type="radio" name="is_correct-{{chapter.order}}-{{question.order}}" value="{{chapter.order}}{{question.order}}-{{answer.order}}" checked>
+            {% else %}
+                <input type="radio" name="is_correct-{{chapter.order}}-{{question.order}}" value="{{chapter.order}}{{question.order}}-{{answer.order}}">
+            {% endif %}
+        </section>
+        {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+<button type="submit" class="btn btn-success" onsubmit="return window.confirm('Are you sure you want to save the test?')">Save Generated Test</button>
+</form>
+{% else %}
+{% if existing_simulator %}
+<form class="form-edit" method="post" action="{% url 'save_edited_simulator' %}">
+    {% csrf_token %}
+    {% for chapter in existing_simulator.chapters.all %}
+    <div class="chapter">
+        <h2>{{chapter.title}}</h2>
+        {% if chapter.chapter_type == 'RC' %}
+            <textarea class="chapter_text-{{chapter.id}}" name="chapter_text-{{chapter.id}}" cols="70" rows="30">{{chapter.reading_text}}</textarea>
+            <textarea class="heb_chapter_text-{{chapter.id}}" name="heb_chapter_text-{{chapter.id}}" cols="70" rows="30" dir="rtl">{{chapter.hebrew_text}}</textarea>
+        {% endif %}
+        {% for question in chapter.questions.all %}
+        <div class="question-edit">
+            <h3>{{chapter.chapter_type}}-{{chapter.order}}-{{question.order}}</h3>
+            <textarea id="question-{{question.id}}" name="question-{{question.id}}" cols="50" rows="4">{{question.description}}</textarea>
+            <textarea id="heb_question-{{question.id}}" name="heb_question-{{question.id}}" cols="50" rows="4" dir="rtl">{{question.hebrew_desc}}</textarea>
+            <div class="answers">
+            {% for answer in question.answer_options.all %}
+            <section>
+                <span>Answer {{forloop.counter}}</span>
+                <textarea id="answer_desc-{{answer.id}}" name="answer_desc-{{answer.id}}" cols="30" rows="4">{{answer.description}}</textarea>
+                <textarea id="heb_answer_desc-{{answer.id}}" name="heb_answer_desc-{{answer.id}}" cols="30" rows="4" dir="rtl">{{answer.hebrew_desc}}</textarea>
+                {% if answer.is_correct %}
+                    <input type="radio" name="correct_answer-{{question.id}}" value="{{answer.id}}" checked>
+                {% else %}
+                    <input type="radio" name="correct_answer-{{question.id}}" value="{{answer.id}}">
+                {% endif %}
+            </section>
+            {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    <button class="btn btn-success" type="submit" onclick="return window.confirm('Are you sure you want to save?')">Save Simulator</button>
+</form>
+{% endif %}
+{% endif %}
+{% endblock %}

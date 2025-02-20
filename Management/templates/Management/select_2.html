@@ -1,0 +1,43 @@
+{% extends "Management/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <h3>Select Words</h3>
+    <select id="word-selector" class="form-control" multiple="multiple" style="width: 100%;">
+        <!-- Options will be dynamically loaded -->
+        <option value="1">Word1</option>
+        <option value="word2">Word2</option>
+        <option value="word3">Word3</option>
+        <option value="word4">Word4</option>
+        <option value="word5">Word5</option>
+    </select>
+    <input type="hidden" id="selected-words" name="selected_words">
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // Initialize Select2
+        $('#word-selector').select2({
+            placeholder: "Select words",
+            allowClear: true,
+            tags: true, // Allows adding new words
+        });
+
+        // Function to update the hidden input field
+        function updateHiddenField() {
+            const selectedWords = $('#word-selector').val(); // Get selected values
+            $('#selected-words').val(selectedWords ? selectedWords.join(',') : ''); // Update hidden input
+        }
+
+        // Update the input field whenever the selection changes
+        $('#word-selector').on('change', function () {
+            updateHiddenField();
+        });
+
+        // Initialize the hidden field with the current selection (if needed)
+        updateHiddenField();
+    });
+</script>
+
+{% endblock %}

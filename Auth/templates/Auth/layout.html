@@ -1,0 +1,202 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Amirnetix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'Auth/styles.css' %}">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background-color: #002244; /* Dark Blue */
+            padding: 20px;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Banner */
+        .banner {
+            background-image: url('https://via.placeholder.com/1200x400');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+        }
+        .banner h2 {
+            font-size: 3em;
+            margin: 0;
+        }
+        .banner p {
+            font-size: 1.2em;
+        }
+        .banner .btn {
+            background-color: #ff5722;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        /* Sections */
+        .intro, .features {
+            padding: 40px 0;
+        }
+        .intro h2 {
+            text-align: center;
+            font-size: 2.5em;
+        }
+        .feature-cards {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin-right: 20px;
+        }
+        .feature-card:last-child {
+            margin-right: 0;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        footer a {
+            color: white;
+            margin: 0 10px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .feature-cards {
+                flex-direction: column;
+            }
+            .feature-card {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1>Amirnetix</h1>
+            <nav>
+                <ul>
+                    <li><a href="/logout">LogOut</a></li>
+                    <li><a href="/Auth">Home</a></li>
+                    <li><a href="/Simulator">Practice Simulators</a></li>
+                    <li><a href="/Analysis">Analyze Simulators</a></li>
+                    <li><a href="#">Learn English</a></li>
+                    <li><a href="#">Test Tips</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Banner -->
+    <section class="banner">
+        <div class="container">
+            <h2>Sample Simulator</h2>
+            <div class="sample-simulator-section">
+                <h3>Discover The FIRST <span class="ai-span">AI</span> Amirnet Simulator</h3>
+                <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> {% csrf_token %}
+                    <button class="btn">Start Sample Simulator</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Intro Section -->
+    <section class="intro">
+        <div class="container">
+            <h2>Welcome to Amirnetix</h2>
+            <p>Amirnetix provides a seamless test simulation experience for the Amir test, helping you track your progress and improve your English skills.</p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Our Features</h2>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <h3>Test Simulation</h3>
+                    <p>Experience a realistic Amir test environment with detailed reports and feedback.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Progress Tracking</h3>
+                    <p>Track your progress over time with detailed analytics and personalized study tips.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Study Resources</h3>
+                    <p>Access a library of test tips, strategies, and practice questions to prepare better.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Amirnetix. All Rights Reserved.</p>
+            <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a> | <a href="#">Contact</a>
+        </div>
+    </footer>
+
+</body>
+</html>

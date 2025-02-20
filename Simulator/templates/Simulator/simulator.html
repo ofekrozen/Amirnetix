@@ -1,0 +1,317 @@
+{% extends "Simulator/layout.html" %}
+{% block header %} - Simulator{% endblock %}
+{% block body %}
+{% if simulator %}
+    <!-- Progress Pointer -->
+    <div class="chapter-progress">
+        {% for chapter in simulator.chapters.all %}
+            <div class="chapter-progress-step" data-order="{{ chapter.order }}">{{ chapter.get_chapter_type_display }}</div>
+        {% endfor %}
+    </div>
+
+    <div id="timer" class="timer">Time Left:</div>
+    <div class="container" style="display: flex;">
+        <button class="nav-btn" id="prev-question" onclick="prevQuestion()" disabled>&lt;</button>
+        
+        {% for chapter in simulator.chapters.all %}
+            <div 
+                class="maxes" 
+                id="maxes-{{ chapter.order }}" 
+                data-maxquestion="{{ chapter.count_questions }}" 
+                data-maxtime="{{ chapter.time_limit }}" 
+                data-type="{{ chapter.chapter_type }}" 
+                style="display: none;">
+            </div>
+
+            <!-- Text for Reading Comprehension chapter -->
+            {% if chapter.chapter_type == 'RC' %}
+                <div class="reading-text" id="reading-text-{{ chapter.order }}">
+                    <p>{{ chapter.reading_text|linebreaks }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Question Container -->
+            <div 
+                class="question-container" 
+                id="question-container-{{ chapter.order }}" 
+                data-chapter="{{ chapter.order }}" 
+                style="display: none;">
+                
+                <!-- Question Progress Pointer -->
+                <div class="question-progress" data-order="{{ chapter.order }}" style="display: none;">
+                    {% for question in chapter.questions.all %}
+                        <div 
+                            class="question-progress-step" 
+                            id="question-progress-step-{{ chapter.order }}-{{ question.order }}" 
+                            data-order="{{ chapter.order }}-{{ question.order }}">
+                            {{ question.order }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Questions and Answers -->
+                {% for question in chapter.questions.all %}
+                    <div 
+                        class="question" 
+                        id="question-{{ chapter.order }}-{{ question.order }}" 
+                        data-questionid="{{ question.id }}" 
+                        data-order="{{ chapter.order }}-{{ question.order }}" 
+                        style="display: none;">
+                        {{ question.description }}
+                    </div>
+
+                    <ul 
+                        class="options" 
+                        id="{{ chapter.order }}-{{ question.order }}" 
+                        style="display: none;">
+                        {% for answer in question.answer_options.all %}
+                            <li class="answer">
+                                <input 
+                                    type="radio" 
+                                    class="answer-input" 
+                                    name="answer-{{ chapter.order }}-{{ question.order }}" 
+                                    data-question="{{question.id}}"
+                                    data-questionorder = "{{chapter.order}}-{{question.order}}"
+                                    id="{{answer.id}}"
+                                    value="{{answer.id}}">
+                                <label for="option-{{ chapter.order }}-{{ question.order }}-{{ answer.order }}">
+                                    {{ answer.description }}
+                                </label>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        
+        <button class="nav-btn" id="next-question" onclick="nextQuestion()">&gt;</button>
+    </div>
+    
+    <div class="navigation" id="nav-div">
+        <button class="nav-btn" id="next-chapter" onclick="nextChapterClick()" disabled>Next Chapter</button>
+    </div>
+    <div class="navigation hidden" id="finish-div">
+        <form id="finishForm" method="post" action="{% url 'finish_simulator' %}">
+            {% csrf_token %}
+            <input id="user_answers" type="hidden" name="user_answers">
+            <input id="answer_times" type="hidden" name="answer_times">
+            {% if simulator_attempt %}
+                <input type="hidden" id="attempt_id" value="{{simulator_attempt.id}}" name="attempt_id">
+            {% endif %}
+            <button class="btn btn-success" type="submit" id="finish-btn" onclick="return finishSimulatorClick()">Finish Simulator</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Selectors
+    const chapterProgressSteps = document.querySelectorAll('.chapter-progress-step');
+    const questionProgresses = document.querySelectorAll('.question-progress');
+    const questions = document.querySelectorAll('.question');
+    const answerContainers = document.querySelectorAll('.options');
+    const answerInputs = document.querySelectorAll('.answer-input');
+    const timer = document.querySelector('#timer');
+    const maxes = document.querySelectorAll('.maxes');
+    const nextQuestionBtn = document.querySelector('#next-question');
+    const nextChapterBtn = document.querySelector('#next-chapter');
+    const prevQuestionBtn = document.querySelector('#prev-question');
+    const navDiv = document.querySelector('#nav-div');
+    const finishDiv = document.querySelector('#finish-div');
+    const finishBtn = document.querySelector("#finish-btn");
+
+    // State Variables
+    let currentChapterCtr = 0;
+    let currentQuestionCtr = 0;
+    let currentMaxes = document.querySelector('.maxes');
+    let timerInterval;
+    let answerJson = {};
+    let timesJson = {};
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        nextChapter();
+    });
+
+    // Show/Hide Buttons Based on Current State
+    function showButtons(){
+        document.querySelectorAll('.question-container').forEach(qc => {
+            qc.style.display = qc.getAttribute('data-chapter') == currentChapterCtr ? "block" : "none";
+        });
+
+        const maxQuestions = parseInt(currentMaxes.getAttribute('data-maxquestion'));
+        if (currentQuestionCtr <= 1 && maxQuestions > currentQuestionCtr){
+            prevQuestionBtn.disabled = true;
+            nextQuestionBtn.disabled = false;
+            nextChapterBtn.disabled = true;
+        }
+        else if(currentQuestionCtr > 1 && maxQuestions > currentQuestionCtr){
+            prevQuestionBtn.disabled = false;
+            nextQuestionBtn.disabled = false;
+            nextChapterBtn.disabled = true;
+        }
+        else if(maxQuestions === currentQuestionCtr){
+            prevQuestionBtn.disabled = false;
+            nextQuestionBtn.disabled = true;
+            nextChapterBtn.disabled = false;
+        }
+        else{
+            prevQuestionBtn.disabled = true;
+            nextQuestionBtn.disabled = true;
+            nextChapterBtn.disabled = true;
+        }
+
+        // Handle Finish Button Visibility
+        if(currentChapterCtr === 6 && currentQuestionCtr === maxQuestions){
+            navDiv.style.display = "none";
+            finishDiv.classList.remove('hidden');
+            finishBtn.style.display = "block";
+            finishBtn.disabled = false;
+            nextChapterBtn.style.display = "none";
+        }
+        else if(currentChapterCtr === 6){
+            navDiv.style.display = "none";
+            finishDiv.classList.remove('hidden');
+            finishBtn.style.display = "block";
+            finishBtn.disabled = true;
+            nextChapterBtn.style.display = "none";
+        }
+        else{
+            finishDiv.classList.add('hidden');
+            navDiv.classList.remove('hidden');
+            finishBtn.style.display = "none";
+            nextChapterBtn.style.display = "block";
+        }
+    }
+
+    // Update Chapter Progress Indicator
+    function updateChapterProgress(){
+        chapterProgressSteps.forEach(step => {
+            step.classList.toggle('active', step.getAttribute('data-order') == currentChapterCtr);
+        });
+    }
+
+    // Navigate to Next Chapter
+    function nextChapter(){
+        // Hide Reading Text of Previous Chapter
+        if(currentMaxes.getAttribute('data-type') === 'RC'){
+            document.querySelector('#reading-text-' + currentChapterCtr).style.display = "none";
+        }
+
+        currentChapterCtr += 1;
+        currentQuestionCtr = 1;
+        console.log(currentChapterCtr +" - " + currentQuestionCtr)
+        updateChapterProgress();
+        updateCurrentMaxes();
+
+        // Show Reading Text for Current Chapter if Applicable
+        if(currentMaxes.getAttribute('data-type') === 'RC'){
+            document.querySelector('#reading-text-' + currentChapterCtr).style.display = "block";
+        }
+
+        showButtons();
+        showQuestionProgress();
+        showCurrentQuestion();
+        runTimer();
+    }
+
+    // Confirmation Before Skipping to Next Chapter
+    function nextChapterClick(){
+        if (window.confirm("Are you sure you want to skip to the next chapter? You won't be able to go back.")){
+            nextChapter();
+        }
+    }
+
+    // Timer Functionality
+    function runTimer(){
+        let chapterTime = parseInt(currentMaxes.getAttribute('data-maxtime')) * 60;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function () {
+            const minutes = Math.floor(chapterTime / 60);
+            const seconds = chapterTime % 60;
+            timer.innerHTML = `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (chapterTime <= 0) {
+                clearInterval(timerInterval);
+                nextChapter(); 
+            }
+
+            chapterTime--;
+        }, 1000);
+    }
+
+    // Update Current Maxes Based on Current Chapter
+    function updateCurrentMaxes(){
+        maxes.forEach(mxdiv => {
+            if(mxdiv.id === "maxes-" + currentChapterCtr){
+                currentMaxes = mxdiv;
+            }
+        });
+    }
+
+    // Show Question Progress for Current Chapter
+    function showQuestionProgress(){
+        questionProgresses.forEach(qp => {
+            qp.style.display = qp.getAttribute('data-order') == currentChapterCtr ? "flex" : "none";
+        });
+    }
+
+    // Display the Current Question and Its Answers
+    function showCurrentQuestion(){
+        questions.forEach(question => {
+            question.style.display = question.getAttribute('data-order') == `${currentChapterCtr}-${currentQuestionCtr}` ? "block" : "none";
+        });
+        answerContainers.forEach(answer => {
+            answer.style.display = answer.id === `${currentChapterCtr}-${currentQuestionCtr}` ? "block" : "none";
+        });
+    }
+
+    // Navigate to Next Question
+    function nextQuestion(){
+        currentQuestionCtr += 1;
+        showButtons();
+        showCurrentQuestion();
+    }
+
+    // Navigate to Previous Question
+    function prevQuestion(){
+        currentQuestionCtr -= 1;
+        showButtons();
+        showCurrentQuestion();
+    }
+
+    // Handle Answer Selection
+    answerInputs.forEach(answer => {
+        let questionId = answer.getAttribute('data-question');
+        let questionOrder = answer.getAttribute('data-questionorder');
+        answerJson[questionId] = 0;
+        timesJson[questionId] = -1;
+        answer.addEventListener('change', () => {
+            answerJson[questionId] = answer.id;
+            timesJson[questionId] = Date.now();
+            console.log(answerJson);
+            console.log(timesJson);
+            document.querySelector('#question-progress-step-' + questionOrder).classList.add('answered');
+        });
+    });
+
+    function finishSimulator(){
+        user_answers_input = document.querySelector('#user_answers');
+        answer_times = document.querySelector('#answer_times');
+        user_answers_input.value = JSON.stringify(answerJson);
+        answer_times.value = JSON.stringify(timesJson);
+        finishForm = document.querySelector('#finishForm').submit;
+    }
+
+    function finishSimulatorClick(){
+        if (window.confirm('Are you sure you want to finish the simulator before the time is over?')){
+            finishSimulator();
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+</script>
+{% endblock %}

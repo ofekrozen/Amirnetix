@@ -1,0 +1,543 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    justify-content: space-between;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+.center {
+    margin: auto;
+    text-align: center;
+}
+
+.form-edit{
+    text-align: center;
+}
+.question-edit{
+    background-color: white;
+    padding: 20px;
+    margin: 20px 40px;
+    border-radius: 20px;
+    border-style: groove;
+}
+
+/* Header */
+header {
+    background-color: #002244; /* Dark Blue */
+    padding: 20px;
+    color: white;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: white;
+    font-weight: 600;
+}
+
+.sample-simulator-section {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.sample-simulator-section h3{
+    margin: 0;
+    font-size: 1.5em;
+}
+.ai-span{
+    color: #0066cc;
+}
+
+/* Filters */
+.filter-section{
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section select, .filter-section input {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+/* Simulator Cards */
+.simulator-list {
+    margin-top: 20px;
+}
+
+.simulator-card {
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.simulator-card h3 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.simulator-card .details {
+    font-size: 0.9em;
+    color: #777;
+}
+
+/* ##### Simulator ##### */
+
+/* Progress Pointer */
+.chapter-progress {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+}
+
+.chapter-progress-step {
+    width: 15%;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #e6e6e6;
+}
+
+.chapter-progress .active {
+    background-color: #0066cc;
+    color: white;
+}
+
+/* Timer */
+.timer {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Question Progress Pointer */
+.question-progress {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.question-progress-step {
+    width: 30px;
+    height: 30px;
+    margin: 0 5px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    text-align: center;
+    line-height: 30px;
+    background-color: #f4f4f4;
+}
+/* After answering a question, the progress will be marked as answered*/
+.answered {
+    background-color: #02468aef;
+    color: white;
+}
+
+/* Question & Answers */
+.question-container {
+    margin: 20px;
+}
+
+.question {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.options {
+    list-style-type: none;
+    padding: 0;
+}
+
+.options li {
+    margin-bottom: 10px;
+}
+
+.options li input {
+    margin-right: 10px;
+}
+
+/* Reading Comprehension Text */
+.reading-text {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #002244;
+    margin: 20px;
+    display: none;
+}
+
+/* Navigation Buttons */
+.navigation {
+    display: flex;
+    justify-content: center;
+}
+
+.nav-btn, .finish-btn {
+    padding: 10px 20px;
+    background-color: #002244;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.finish-btn{
+    background-color: #218838;
+}
+
+.nav-btn:disabled,.finish-btn:disabled {
+    background-color: #ccc;
+}
+
+.nav-btn.confirm-next {
+    background-color: #28a745; /* Confirm Next Button Green */
+}
+
+/* English Vocab Englihs Learning */
+/* Word Cards Container */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Word Card */
+.word{
+    margin: 20px;
+}
+.word-card {
+    width: 200px;
+    height: 150px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.word-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.word-card.flipped .word-card-inner {
+    transform: rotateY(180deg);
+}
+
+.word-card-front, .word-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/*.card-front {
+     Front side styling 
+
+}*/
+
+.word-card-back {
+    transform: rotateY(180deg);
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Understanding Options */
+.understanding-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mark-understanding {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 0.9em;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .word-card {
+        width: 100%;
+    }
+}
+
+/* Level Filter Styling */
+.level-filter {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.level-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #005bb5;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.level-btn:hover {
+    background-color: #0073e6;
+}
+
+.level-btn.active {
+    background-color: #003f7f;
+}
+
+
+/* ### Analyze Simulator ### */
+/* Container Enhancements */
+.analysis-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Simulator Title */
+.simulator-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #002244;
+}
+
+/* Chapter Styling */
+.chapter-title {
+    background-color: #0066cc;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.chapter-title:hover {
+    background-color: #005bb5;
+}
+
+.chapter-content {
+    display: none;
+    padding-left: 20px;
+    margin-bottom: 20px;
+    height: max-content;
+}
+
+/* Question Card Enhancements */
+.question-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.question-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Correct Answer Styling */
+.correct-answer {
+    border-left: 5px solid #28a745; /* Green border */
+    position: relative;
+}
+
+.correct-icon {
+    color: #28a745;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .search-bar input {
+        width: 95%;
+    }
+}
+
+/* Smooth Transition for Collapsible Content */
+.chapter-content {
+    transition: max-height 0.3s ease-out;
+}
+
+/* Analysis wrong additions */
+/* Wrong Selected Answer Styling */
+.wrong-selected-answer {
+    border-left: 5px solid #dc3545; /* Red border for wrong answer */
+    position: relative;
+}
+
+.wrong-icon {
+    color: #dc3545;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+/* Yellow Marker for Correct Answer when user is wrong */
+.yellow-marker {
+    color: #ffc107;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+/* Flip Animation */
+.card {
+    perspective: 1000px;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: relative;
+    width: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    /* box-sizing: border-box; */
+    cursor: pointer;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background-color: #f0f0f0;
+    color: #002244;
+}
+
+.hidden{
+    display: none;
+}
+
+/* Simulator Analysis Metrics */
+/* Metrics Container */
+.metrics-container {
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+.metrics-title {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #002244;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Metrics Table Styling */
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.metrics-table th, .metrics-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.metrics-table th {
+    background-color: #002244;
+    color: white;
+    font-weight: 600;
+}
+
+.metrics-table tbody tr:nth-child(even) {
+    background-color: #f4f4f4;
+}
+
+.metrics-table td {
+    color: #333;
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 768px) {
+    .metrics-table th, .metrics-table td {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+}
+
+/* Vocabulary Analysis */
+.chart {
+    margin: 30px auto;
+    max-width: 600px;
+}
+.stats {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+}

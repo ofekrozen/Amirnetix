@@ -1,0 +1,94 @@
+{% extends "Management/layout.html" %}
+{% block body %}
+    <div class="container">
+        {% if user.is_authenticated and user.is_superuser %}
+        <h2>Generate New Simulator</h2>
+        <div class="generate-section">
+            <form method="post" action="{% url 'generate_test' %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Generate New Simulator</button>
+            </form>
+            <a class="btn btn-secondary" href="{% url 'select_2'%}">Select 2</a>
+            <a class="btn btn-secondary" href="{% url 'create_simulator'%}">Create Simulator</a>
+            <a class="btn btn-secondary" href="{% url 'upload_words' list_type='AWL' %}">Upload Academic words list</a>
+            <a class="btn btn-secondary" href="{% url 'upload_words' list_type='GSL' %}">Upload GSL words list</a>
+        </div>
+        {% endif %}
+        <h2>Filter Simulators</h2>
+        <div class="filter-section">
+            <!-- Search Bar -->
+            <input type="text" id="search-bar" placeholder="Search simulators..." onkeyup="filterSimulators()">
+
+            <!-- Filter by Level -->
+            <select name="level" id="level-filter" onchange="filterSimulators()">
+                <option value="all">Level (All)</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+                <option value="mix">Mix</option>
+            </select>
+
+            <!-- Filter by Subject -->
+            <select name="subject" id="subject-filter" onchange="filterSimulators()">
+                <option value="all">Subject (All)</option>
+                <option value="sentence-completion">Sentence Completion</option>
+                <option value="restatements">Restatements</option>
+                <option value="reading-comprehension">Reading Comprehension</option>
+            </select>
+
+            <!-- Filter by Completion Status -->
+            <select name="status" id="status-filter" onchange="filterSimulators()">
+                <option value="all">Completion Status (All)</option>
+                <option value="done">Completed</option>
+                <option value="not-done">Not Completed</option>
+            </select>
+        </div>
+
+        <!-- Simulator Cards Section -->
+        <h2>Available Simulators</h2>
+        {% if simulators %}
+        <div id="simulator-list" class="simulator-list">
+            {% for simulator in simulators %}
+            <div id="{{simulator.id}}" class="simulator-card" data-level="{{simulator.level}}" data-subject="mix" data-status="not-done">
+                <div>
+                    <h3>{{simulator.name}}</h3>
+                    <p class="details">Created at {{simulator.create_date}}</p>
+                </div>
+                
+                <a class="btn btn-primary" href="{% url 'translate' simulator_id=simulator.id %}">Translate Simulator</a>
+                <a class="btn btn-secondary" href="{% url 'edit_test' simulator_id=simulator.id %}">Edit Simulator</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        function filterSimulators() {
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const levelFilter = document.getElementById('level-filter').value;
+            const subjectFilter = document.getElementById('subject-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+
+            const simulators = document.querySelectorAll('.simulator-card');
+
+            simulators.forEach(function(simulator) {
+                const name = simulator.querySelector('h3').innerText.toLowerCase();
+                const level = simulator.getAttribute('data-level');
+                const subject = simulator.getAttribute('data-subject');
+                const status = simulator.getAttribute('data-status');
+
+                // Apply filters and search term
+                if (
+                    (name.includes(searchTerm)) &&
+                    (levelFilter === 'all' || level === levelFilter) &&
+                    (subjectFilter === 'all' || subject === subjectFilter) &&
+                    (statusFilter === 'all' || status === statusFilter)
+                ) {
+                    simulator.style.display = 'flex';
+                } else {
+                    simulator.style.display = 'none';
+                }
+            });
+        }
+    </script>
+{% endblock %}
