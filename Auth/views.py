@@ -44,4 +44,4 @@ def logout_view(request):
 # Create your views here.
 
 def index(request):
-    return render(request,'Auth/layout.html')
+    return render(request,'Auth/index.html')

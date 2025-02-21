@@ -4,18 +4,12 @@
 
     <!-- Filter Section -->
     <div class="container">
-        <h2>Sample Simulator</h2>
-        <div class="sample-simulator-section">
-            <h3>Discover The FIRST <span class="ai-span">AI</span> Amirnet Simulator</h3>
-            <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> {% csrf_token %}
-                <button class="btn btn-success">Start Sample Simulator</button>
-            </form>
-        </div>
+        
         {% if user.is_authenticated %}
-        <h2>Filter Simulators</h2>
+        <h2>סנן סימולטורים</h2>
         <div class="filter-section">
             <!-- Search Bar -->
-            <input type="text" id="search-bar" placeholder="Search simulators..." onkeyup="filterSimulators()">
+            <input type="text" id="search-bar" placeholder="חפש סימולטור..." onkeyup="filterSimulators()">
 
             <!-- Filter by Level -->
             <!-- <select name="level" id="level-filter" onchange="filterSimulators()">
@@ -36,9 +30,9 @@
 
             <!-- Filter by Completion Status -->
             <select name="status" id="status-filter" onchange="filterSimulators()">
-                <option value="all">Completion Status (All)</option>
-                <option value="done">Completed</option>
-                <option value="not-done">Not Completed</option>
+                <option value="all">הכל</option>
+                <option value="done">בוצע</option>
+                <option value="not-done">טרם בוצע</option>
             </select>
         </div>
 
@@ -51,11 +45,11 @@
             <div class="simulator-card" data-level="{{simulator_attempt.simulator.level}}" data-status="done">
                 <div>
                     <h3>{{simulator_attempt.simulator.name}}</h3>
-                    <p class="details">Last Attempt: {{simulator_attempt.last_attempt.start_time|timesince}} ago</p>
+                    <p class="details">ניסיון אחרון: <span dir="ltr">{{simulator_attempt.last_attempt.start_time|timesince}} ago</span></p>
                 </div>
                 <div>
-                    <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.last_attempt.id%}" class="btn btn-secondary">Analyze Simulator</a>
-                    <a href="{% url 'start_simulator' simulator_id=simulator_attempt.simulator.id %}" class="btn btn-success">Start Simulator</a>
+                    <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.last_attempt.id%}" class="btn btn-secondary">ניתוח תוצאות</a>
+                    <a href="{% url 'start_simulator' simulator_id=simulator_attempt.simulator.id %}" class="btn btn-success">התחל סימולטור</a>
                 </div>
             </div>
             {% else %}

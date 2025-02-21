@@ -1,0 +1,12 @@
+{% extends "Auth/layout.html" %}
+{% block body %}
+<div class="sample-simulator-div">
+<h2>סימולטור לדוגמה</h2>
+    <div class="sample-simulator-section">
+        <h3>נסה את סימולטור ה- <span class="ai-span">AI</span> לדוגמה</h3>
+        <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> {% csrf_token %}
+            <button class="btn btn-success">התחל סימולטור לדוגמה</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

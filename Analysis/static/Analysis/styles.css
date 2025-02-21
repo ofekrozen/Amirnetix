@@ -39,8 +39,16 @@ a {
 /* Header */
 header {
     background-color: #002244; /* Dark Blue */
-    padding: 20px;
     color: white;
+    justify-content: space-between;
+    display: flex;
+}
+.header-container{
+    display: flex;
+    margin: 16px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 header h1 {
@@ -58,9 +66,17 @@ nav ul li {
     margin-right: 20px;
 }
 
-nav ul li a {
+.li-a {
     color: white;
     font-weight: 600;
+    align-items: center;
+}
+.btn-outline-primary,.btn-outline-secondary{
+    background-color: #f4f4f4;
+    font-weight: bold;
+    margin-left: 8px;
+    margin-right: 8px;
+    border: none;
 }
 
 .sample-simulator-section {

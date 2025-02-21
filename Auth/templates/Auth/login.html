@@ -14,8 +14,10 @@
             <div class="form-group">
                 {{ form.password.label_tag }} {{ form.password }}
             </div>
-            <button type="submit" class="btn">התחבר</button>
+            <div class="div-submit">
+                <button type="submit" class="btn">התחבר</button>
+                <p>אין לך משתמש? <a href="{% url 'register' %}">הירשם כאן</a>.</p>
+            </div>
         </form>
-        <p>אין לך משתמש? <a href="{% url 'register' %}">הירשם כאן</a>.</p>
     </div>
 {% endblock %}
