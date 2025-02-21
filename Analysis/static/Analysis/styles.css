@@ -339,11 +339,26 @@ nav ul li a {
 
 .level-btn:hover {
     background-color: #0073e6;
+    color: white;
 }
 
 .level-btn.active {
     background-color: #003f7f;
 }
+
+.filter-perfect:hover{
+    background-color: #28a745;
+    color: white;
+}
+.filter-none:hover{
+    background-color: #dc3545;
+    color: white;
+}
+.filter-partially:hover{
+    background-color:#ffc107;
+    color: white;
+}
+
 
 
 /* ### Analyze Simulator ### */

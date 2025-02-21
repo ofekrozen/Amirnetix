@@ -7,14 +7,15 @@ body {
 
 h1, h2, h3 {
     font-family: 'Poppins', sans-serif;
+    font-weight: bolder;
 }
 
-.container {
+/* .container {
     max-width: 1200px;
     margin: auto;
-    padding: 20px;
     justify-content: space-between;
-}
+    display: flex;
+} */
 
 a {
     text-decoration: none;
@@ -24,8 +25,16 @@ a {
 /* Header */
 header {
     background-color: #002244; /* Dark Blue */
-    padding: 20px;
     color: white;
+    justify-content: space-between;
+    display: flex;
+}
+.header-container{
+    display: flex;
+    margin: 16px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 header h1 {
@@ -37,189 +46,25 @@ nav ul {
     padding: 0;
     margin: 0;
     display: flex;
-}
-
-nav ul li {
-    margin-right: 20px;
-}
-
-nav ul li a {
-    color: white;
-    font-weight: 600;
-}
-
-
-
-/* Filters */
-.filter-section {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.filter-section select, .filter-section input {
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
-
-/* Simulator Cards */
-.simulator-list {
-    margin-top: 20px;
-}
-
-.simulator-card {
-    display: flex;
-    justify-content: space-between;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
     align-items: center;
 }
 
-.simulator-card h3 {
-    margin: 0;
-    font-size: 1.5em;
+nav ul li {
+    margin-right: 12px;
+    margin-left: 12px;
+    align-items: center;
 }
 
-.simulator-card .details {
-    font-size: 0.9em;
-    color: #777;
-}
-
-.btn {
-    background-color: #28a745; /* Green for encouragement */
+.li-a {
     color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+    font-weight: 600;
+    align-items: center;
 }
-
-.btn:hover {
-    background-color: #218838; /* Slightly darker green on hover */
-}
-
-/* ##### Simulator ##### */
-
-/* Progress Pointer */
-.chapter-progress {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
-    padding: 10px;
+.btn-outline-primary,.btn-outline-secondary{
     background-color: #f4f4f4;
-    border-radius: 8px;
-}
-
-.chapter-progress-step {
-    width: 15%;
-    text-align: center;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #e6e6e6;
-}
-
-.chapter-progress .active {
-    background-color: #0066cc;
-    color: white;
-}
-
-/* Timer */
-.timer {
-    text-align: center;
-    font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 20px;
-}
-
-/* Question Progress Pointer */
-.question-progress {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.question-progress-step {
-    width: 30px;
-    height: 30px;
-    margin: 0 5px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    text-align: center;
-    line-height: 30px;
-    background-color: #f4f4f4;
-}
-/* After answering a question, the progress will be marked as answered*/
-.answered {
-    background-color: #02468aef;
-    color: white;
-}
-
-/* Question & Answers */
-.question-container {
-    margin: 20px;
-}
-
-.question {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-
-.options {
-    list-style-type: none;
-    padding: 0;
-}
-
-.options li {
-    margin-bottom: 10px;
-}
-
-.options li input {
-    margin-right: 10px;
-}
-
-/* Reading Comprehension Text */
-.reading-text {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-left: 4px solid #002244;
-    margin: 20px;
-    display: none;
-}
-
-/* Navigation Buttons */
-.navigation {
-    display: flex;
-    justify-content: center;
-}
-
-.nav-btn, .finish-btn {
-    padding: 10px 20px;
-    background-color: #002244;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.finish-btn{
-    background-color: #218838;
-}
-
-.nav-btn:disabled,.finish-btn:disabled {
-    background-color: #ccc;
-}
-
-.nav-btn.confirm-next {
-    background-color: #28a745; /* Confirm Next Button Green */
+    margin-left: 8px;
+    margin-right: 8px;
 }
 
 

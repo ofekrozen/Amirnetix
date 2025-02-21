@@ -24,16 +24,18 @@
             <h1>Amirnetix{% block header %}{% endblock %}</h1>
             <nav>
                 <ul>
-                    <li><a href="/Auth/logout">LogOut</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="/logout">LogOut</a></li>
+                    {% endif %}
                     <li><a href="/">Home</a></li>
                     <li><a href="/Simulator">Practice Simulators</a></li>
                     <li><a href="/Analysis/">Analyze Simulators</a></li>
-                    <li><a href="#">Learn English</a></li>
+                    <li><a href="/Analysis/english_vocab">Learn English</a></li>
                     <li><a href="#">Test Tips</a></li>
                     <li><a href="#">About Us</a></li>
                     <li><a href="#">Contact</a></li>
                     {% if user.is_authenticated and user.is_superuser %}
-                    <li><a href="/Management/">Edit Simulators</a></li>
+                        <li><a href="/Management">Edit Simulators</a></li>
                     {% endif %}
                 </ul>
             </nav>

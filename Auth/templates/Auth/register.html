@@ -1,16 +1,8 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" href="{% static 'Auth/styles.css' %}">
-</head>
-<body>
+{% extends "Auth/layout.html" %}
+{% block body %}
     <div class="auth-container">
         <div class="auth-header">
-            <h2>Create a New Account</h2>
+            <h2>הרשמה</h2>
             {% if errors %}
             {{errors}}
             {% endif %}
@@ -53,9 +45,8 @@
                 {{ form.password2.label_tag }} {{ form.password2 }}
             </div>
         </div>
-            <button type="submit" class="btn">Register</button>
+            <button type="submit" class="btn">הירשם</button>
         </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+        <p>כבר יש לך משתמש? <a href="{% url 'login' %}">התחבר כאן</a>.</p>
     </div>
-</body>
-</html>
+{% endblock %}

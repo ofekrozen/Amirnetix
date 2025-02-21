@@ -15,15 +15,19 @@
             <button class="btn level-btn" data-level="{{level}}">Level {{level}}</button>
         {% endfor %}
     </div>
+
+    <div class="container-title">
+        <h3 class="title-header"></h3>
+    </div>
     <!-- Familiarity Level Filter -->
     <div>
         <label>Select Familiarity Level:</label>
         <div id="fam-level-filter" class="fam-filter-buttons">
-            <button class="btn btn-secondary fam-filter-btn" data-familiarity="-1">Show All</button>
-            <button class="btn btn-secondary fam-filter-btn" data-familiarity="0">O (Not Selected)</button>
-            <button class="btn btn-secondary fam-filter-btn" data-familiarity="1">✓ (Perfect)</button>
-            <button class="btn btn-secondary fam-filter-btn" data-familiarity="2">– (Partially)</button>
-            <button class="btn btn-secondary fam-filter-btn" data-familiarity="3">✗ (Not at All)</button>
+            <button class="btn btn-secondary selected fam-filter-btn" data-familiarity="-1">Show All</button>
+            <button class="btn btn-secondary unselected fam-filter-btn" data-familiarity="0">O (Not Selected)</button>
+            <button class="btn btn-secondary unselected fam-filter-btn filter-perfect" data-familiarity="1">✓ (Perfect)</button>
+            <button class="btn btn-secondary unselected fam-filter-btn filter-partially" data-familiarity="2">– (Partially)</button>
+            <button class="btn btn-secondary unselected fam-filter-btn filter-none" data-familiarity="3">✗ (Not at All)</button>
         </div>
     </div>
     
@@ -70,7 +74,9 @@
 <script>
     var selectedLevel = 1;
     var selectedFam = -1;
+    const title = document.querySelector('.title-header');
     document.addEventListener('DOMContentLoaded',()=>{
+        title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
         // Initially filter only level 1 words
         document.querySelectorAll('.word').forEach(word => {
             word.style.display = word.getAttribute('data-word-level') === "1" ? 'block' : 'none';
@@ -81,6 +87,7 @@
     document.querySelectorAll('.level-btn').forEach(button => {
         button.addEventListener('click', () => {
             selectedLevel = button.getAttribute('data-level');
+            title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
             document.querySelectorAll('.word').forEach(word => {
                 word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel? 'block' : 'none';
             });
@@ -90,7 +97,27 @@
     // Filter by familiarity
     document.querySelectorAll('.fam-filter-btn').forEach(button =>{
         button.addEventListener('click',()=>{
+            button.classList.replace('unselected','selected');
             selectedFam = button.getAttribute('data-familiarity');
+            document.querySelectorAll('.fam-filter-btn').forEach(btn=>{
+                if(btn!=button){
+                    btn.classList.replace('btn-success','btn-secondary');
+                    btn.classList.replace('btn-warning','btn-secondary');
+                    btn.classList.replace('btn-danger','btn-secondary');
+                }
+                else{
+                    if (selectedFam == 1){
+                        button.classList.replace('btn-secondary','btn-success');
+                    }
+                    if (selectedFam == 2){
+                        button.classList.replace('btn-secondary','btn-warning');
+                    }
+                    if (selectedFam == 3){
+                        button.classList.replace('btn-secondary','btn-danger');
+                    }
+                }
+            });
+            
             document.querySelectorAll('.word').forEach(word => {
                 if (selectedFam == -1){
                     word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel ? 'block' : 'none';

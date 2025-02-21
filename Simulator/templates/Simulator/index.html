@@ -18,21 +18,21 @@
             <input type="text" id="search-bar" placeholder="Search simulators..." onkeyup="filterSimulators()">
 
             <!-- Filter by Level -->
-            <select name="level" id="level-filter" onchange="filterSimulators()">
+            <!-- <select name="level" id="level-filter" onchange="filterSimulators()">
                 <option value="all">Level (All)</option>
                 <option value="1">Easy</option>
                 <option value="2">Medium</option>
                 <option value="3">Hard</option>
                 <option value="0">Mix</option>
-            </select>
+            </select> -->
 
             <!-- Filter by Subject -->
-            <select name="subject" id="subject-filter" onchange="filterSimulators()">
+            <!-- <select name="subject" id="subject-filter" onchange="filterSimulators()">
                 <option value="all">Subject (All)</option>
                 <option value="sentence-completion">Sentence Completion</option>
                 <option value="restatements">Restatements</option>
                 <option value="reading-comprehension">Reading Comprehension</option>
-            </select>
+            </select> -->
 
             <!-- Filter by Completion Status -->
             <select name="status" id="status-filter" onchange="filterSimulators()">
@@ -53,7 +53,10 @@
                     <h3>{{simulator_attempt.simulator.name}}</h3>
                     <p class="details">Last Attempt: {{simulator_attempt.last_attempt.start_time|timesince}} ago</p>
                 </div>
-                <a href="{% url 'start_simulator' simulator_id=simulator_attempt.simulator.id %}" class="btn btn-success">Start Simulator</a>
+                <div>
+                    <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.last_attempt.id%}" class="btn btn-secondary">Analyze Simulator</a>
+                    <a href="{% url 'start_simulator' simulator_id=simulator_attempt.simulator.id %}" class="btn btn-success">Start Simulator</a>
+                </div>
             </div>
             {% else %}
             <div class="simulator-card" data-level="{{simulator_attempt.simulator.level}}" data-status="not-done">
@@ -73,23 +76,23 @@
     <script>
         function filterSimulators() {
             const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-            const levelFilter = document.getElementById('level-filter').value;
-            const subjectFilter = document.getElementById('subject-filter').value;
+            // const levelFilter = document.getElementById('level-filter').value;
+            // const subjectFilter = document.getElementById('subject-filter').value;
             const statusFilter = document.getElementById('status-filter').value;
 
             const simulators = document.querySelectorAll('.simulator-card');
 
             simulators.forEach(function(simulator) {
                 const name = simulator.querySelector('h3').innerText.toLowerCase();
-                const level = simulator.getAttribute('data-level');
-                const subject = simulator.getAttribute('data-subject');
+                // const level = simulator.getAttribute('data-level');
+                // const subject = simulator.getAttribute('data-subject');
                 const status = simulator.getAttribute('data-status');
 
                 // Apply filters and search term
                 if (
                     (name.includes(searchTerm)) &&
-                    (levelFilter === 'all' || level === levelFilter) &&
-                    (subjectFilter === 'all' || subject === subjectFilter) &&
+                    // (levelFilter === 'all' || level === levelFilter) &&
+                    // (subjectFilter === 'all' || subject === subjectFilter) &&
                     (statusFilter === 'all' || status === statusFilter)
                 ) {
                     simulator.style.display = 'flex';

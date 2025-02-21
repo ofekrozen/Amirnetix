@@ -9,6 +9,12 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(CustomUserCreationForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = "שם משתמש"
+        self.fields['first_name'].label = "שם פרטי"
+        self.fields['last_name'].label = "שם משפחה"
+        self.fields['email'].label = "אימייל"
+        self.fields['password1'].label = "סיסמה"
+        self.fields['password2'].label = "אימות סיסמה"
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
 
@@ -40,5 +46,7 @@ class CustomUserChangeForm(UserChangeForm):
 class CustomLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(CustomLoginForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = "שם משתמש"
+        self.fields['password'].label = "סיסמה"
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
         self.fields['password'].widget.attrs.update({'class': 'form-control'})

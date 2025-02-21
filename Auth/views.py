@@ -17,6 +17,7 @@ def register(request):
         else:
             return render(request, 'Auth/register.html', {'form': form, "alert" : form.errors})
     
+    form = CustomUserCreationForm()
     return render(request, 'Auth/register.html', {'form': form})
 
 
