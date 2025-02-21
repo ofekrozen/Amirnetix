@@ -22,10 +22,11 @@
             </div>
         {% endif %}
         </div>
-        <form class="auth-form" method="POST" action="{% url 'register' %}">
+        <div class="auth-form">
+        <form  method="POST" action="{% url 'register' %}">
             {% csrf_token %}
-            <div class="auth-container">
-            {{ form.non_field_errors }}
+        <div class="auth-container">
+        {{ form.non_field_errors }}
             <div class="form-group">
                 {{ form.username.label_tag }} {{ form.username }}
             </div>
@@ -45,8 +46,11 @@
                 {{ form.password2.label_tag }} {{ form.password2 }}
             </div>
         </div>
+        <div class="div-submit">
             <button type="submit" class="btn">הירשם</button>
+            <p>כבר יש לך משתמש? <a href="{% url 'login' %}">התחבר כאן</a>.</p>
+        </div>
         </form>
-        <p>כבר יש לך משתמש? <a href="{% url 'login' %}">התחבר כאן</a>.</p>
+        </div>
     </div>
 {% endblock %}

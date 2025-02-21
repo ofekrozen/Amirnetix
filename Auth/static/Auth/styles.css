@@ -65,6 +65,7 @@ nav ul li {
     font-weight: bold;
     margin-left: 8px;
     margin-right: 8px;
+    border: none;
 }
 
 
@@ -76,6 +77,10 @@ nav ul li {
     background-color: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    align-items: center;
+}
+.div-submit{
+    text-align: center;
 }
 
 .auth-header {
@@ -116,11 +121,14 @@ nav ul li {
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    text-align: center;
+    width: 50%;
     transition: background-color 0.3s ease;
 }
 
 .auth-form button:hover {
     background-color: #02468a;
+    color: white;
 }
 
 .auth-links {
