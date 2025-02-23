@@ -142,7 +142,9 @@ nav ul li {
 } */
 
 /* ##### Simulator ##### */
-
+.div-simulator{
+    direction: ltr;
+}
 /* Progress Pointer */
 .chapter-progress {
     display: flex;

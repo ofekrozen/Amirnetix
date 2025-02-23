@@ -1,6 +1,7 @@
 {% extends "Simulator/layout.html" %}
 {% block header %} - Simulator{% endblock %}
 {% block body %}
+<div class="div-simulator">
 {% if simulator %}
     <!-- Progress Pointer -->
     <div class="chapter-progress">
@@ -102,6 +103,7 @@
         </form>
     </div>
 {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
