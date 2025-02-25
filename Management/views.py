@@ -281,20 +281,44 @@ def create_simulator(request):
 
 
 def fetch_unused_words(request):
+    words_list = []
+    try:
+        words_df = pd.read_csv(r"C:\Users\ofeko\Desktop\Python\PyPdf2\words.csv")
+        for word in words_df["Word"]:
+            try:
+                words_list.append(Word.objects.get(eng_word = word))
+            except:
+                pass
+        words_list = unused_words(words_list)
+    except:
+        all_words = list(Word.objects.exclude(level = 1).all())
+        words_list = unused_words(all_words)
+
     search_query = request.GET.get('q', '')
-    unused_words = [
-        {"id": 1, "text": "example"},
-        {"id": 2, "text": "dynamic"},
-        {"id": 3, "text": "selection"},
-        {"id": 4, "text": "interactive"},
-        {"id": 5, "text": "learning"},
-        # Replace this static list with a query to fetch unused words from your database.
-    ]
+    
+    not_used_words = []
+    for word in words_list:
+        not_used_words.append({"id":word.id, "text":word.eng_word})
 
     if search_query:
-        unused_words = [word for word in unused_words if search_query.lower() in word["text"].lower()]
+        not_used_words = [word for word in not_used_words if search_query.lower() in word["text"].lower()]
 
-    return JsonResponse(unused_words, safe=False)
+    return JsonResponse(not_used_words, safe=False)
+
+def unused_words(word_list: list[Word]) -> list[Word]:
+    new_words_list = []
+    for word in word_list:
+        if not word.is_used():
+            new_words_list.append(word)
+    return new_words_list
+
+
 
 def select_2(request):
     return render(request, "Management/select_2.html")
+
+def first_100(request):
+    first_100_words = Word.objects.filter(word_level = 2).all().order_by('word_level')
+    for word in first_100_words:
+        print(word)
+    return render(request,"Management/index.html")

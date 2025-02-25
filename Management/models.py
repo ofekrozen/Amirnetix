@@ -1,5 +1,5 @@
 from django.db import models
-from Simulator.models import CustomUser
+from Simulator.models import CustomUser, AnswerOption
 from django.conf import settings
 
 # Create your models here.
@@ -33,6 +33,12 @@ class Word(models.Model):
 
     def __str__(self):
         return f"{self.eng_word} - {self.heb_word} - {self.word_level}"
+    
+    def is_used(self):
+        for answer in AnswerOption.objects.all():
+            if self.eng_word in answer.description:
+                return True
+        return False
 
 class Word_Form(models.Model):
     root_word = models.ForeignKey(Word,on_delete=models.CASCADE)

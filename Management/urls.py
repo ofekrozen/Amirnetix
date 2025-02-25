@@ -12,4 +12,5 @@ urlpatterns = [
     path("create_simulator/",views.create_simulator, name='create_simulator'),
     path('admin/fetch-unused-words/', views.fetch_unused_words, name='fetch_unused_words'),
     path("select_2/",views.select_2, name='select_2'),
+    path("first_100/",views.first_100, name='first_100'),
 ]

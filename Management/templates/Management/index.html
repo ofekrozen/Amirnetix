@@ -8,10 +8,11 @@
                 {% csrf_token %}
                 <button class="btn btn-primary" type="submit">Generate New Simulator</button>
             </form>
-            <a class="btn btn-secondary" href="{% url 'select_2'%}">Select 2</a>
+            <!-- <a class="btn btn-secondary" href="{% url 'select_2'%}">Select 2</a> -->
             <a class="btn btn-secondary" href="{% url 'create_simulator'%}">Create Simulator</a>
-            <a class="btn btn-secondary" href="{% url 'upload_words' list_type='AWL' %}">Upload Academic words list</a>
-            <a class="btn btn-secondary" href="{% url 'upload_words' list_type='GSL' %}">Upload GSL words list</a>
+            <!-- <a class="btn btn-secondary" href="{% url 'upload_words' list_type='AWL' %}">Upload Academic words list</a>
+            <a class="btn btn-secondary" href="{% url 'upload_words' list_type='GSL' %}">Upload GSL words list</a> -->
+            <a class="btn btn-secondary" href="{% url 'first_100' %}">Show 100 first words</a>
         </div>
         {% endif %}
         <h2>Filter Simulators</h2>
