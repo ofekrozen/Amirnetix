@@ -155,9 +155,9 @@ def save_new_simulator(request):
     if request.method == "POST":
         try:
             simulator_number = Simulator.objects.all().count()
-            simulator = Simulator.objects.create(name = f"Simulator number {simulator_number + 1} - Mixed", description="mixed level Simulator")
+            simulator = Simulator.objects.create(name = f"Simulator number {simulator_number + 1}", description="mixed level Simulator")
         except:
-            simulator = Simulator.objects.create(name = f"First Simulator - Mixed", description="mixed level Simulator")
+            simulator = Simulator.objects.create(name = f"First Simulator", description="mixed level Simulator")
         chapter_type = None
         chapter_text = None
         time_limit = 0
@@ -180,6 +180,8 @@ def save_new_simulator(request):
             elif key.strip().startswith('text-'):
                 chapter_text = value.strip()
                 current_chapter_object.reading_text = chapter_text
+                simulator.name += prompts.Generate_Text_Title(chapter_text)
+                simulator.save()
                 current_chapter_object.save()
             elif key.strip().startswith('question-'):
                 question_order = int(key.strip().split('-')[-1])
@@ -269,16 +271,103 @@ def create_simulator(request):
             messages.error(request, "All fields are required.")
         else:
             words_ids_list = words_ids_list.split(",")
+            word_object_list = [Word.objects.get(id = word_id) for word_id in words_ids_list]
+            test_to_edit = generate_simulator_using_words(word_object_list,topic)
             # Assuming OpenAI API handling is in another function
             # api_response = send_to_openai_api(data)
             messages.success(request, "Your request has been sent successfully.")
             print(f"Creating a test with according to:\n{words_ids_list}\ntext topic: {topic}")
             # **** Create a new Generate Test function! **** #
-            # return redirect('generate_questions')
-        return redirect('index')
+            return render(request, 'Management/edit_test.html', {
+                'new_simulator' : test_to_edit
+            })
+        return render(request,'Management/index.html')
 
     return render(request, 'Management/create_simulator.html')
 
+def generate_simulator_using_words (words_list : list[Word], topic: str) -> list:
+    try:
+            simulator_number = Simulator.objects.all().count()
+            simulator = Simulator(name = f"Simulator number {simulator_number + 1}", description="mixed level Simulator")
+    except:
+            simulator = Simulator(name = f"First Simulator", description="mixed level Simulator")
+    
+    test = []
+    for i in range(1,7,1):
+        order = i
+        current_chapter = {'order' : order, 'questions' : []}
+        this_chapter_object = None
+        chapter_json_lst = None
+        chapter_type = None
+        title = ""
+        time_limit = 0
+        chapter_word_list = []
+        if i in (1,2,6):
+            chapter_type = ChapterType.SENTENCE_COMPLETION
+            title = f"{chapter_type} - {i}"
+            time_limit = 4
+            # Create a 
+            this_chapter_object = Chapter(simulator = simulator, order = order,chapter_type = chapter_type, title = title, time_limit = time_limit)
+            for j in (1,2,3,4):
+                chapter_word_list.append(words_list.pop().eng_word)
+            chapter_json_lst = prompts.Generate_Sentence_Completion_Chapter(chapter_word_list)
+            print(f"Sentence Completions {i}:")
+            print(chapter_json_lst['questions'])
+        elif i == 3:
+            chapter_type = ChapterType.READING_COMPREHENSION
+            title = f"{chapter_type} - {i}"
+            time_limit = 15
+            chapter_json_lst = prompts.Generate_Reading_Comprehension_Chapter(topic)
+            print(f"Reading Comprehension {i}:")
+            print(chapter_json_lst['questions'])
+            simulator.save()
+            this_chapter_object = Chapter(simulator = simulator, order = order,chapter_type = chapter_type, title = title, time_limit = time_limit)
+            current_chapter['text'] = chapter_json_lst['text']
+            current_chapter['heb_text'] = translate_text(current_chapter['text'])
+        elif i in (4,5):
+                chapter_type = ChapterType.RESTATEMENT
+                title = f"{chapter_type} - {i}"
+                time_limit = 6
+                this_chapter_object = Chapter(simulator = simulator, order = order,chapter_type = chapter_type, title = title, time_limit = time_limit)
+                for j in (1,2,3):
+                    chapter_word_list.append(words_list.pop().eng_word)
+                chapter_json_lst = prompts.Generate_Restatement_Chapter(chapter_word_list)
+                print(f"Restatements {i}:")
+                print(chapter_json_lst['questions'])
+        question_order = 0
+        for question in chapter_json_lst['questions']:
+            question_order += 1
+            question_desc = ""
+            current_question = None
+            answers = []
+            for key in question:
+                # Add Question translation
+                if key == "q":
+                    question_desc = question[key]
+                    heb_question_desc = translate_text(question_desc)
+                    # Question object to edit (the saving is later in the proccess)
+                    current_question = Question(chapter = this_chapter_object,order = question_order, description = question_desc,hebrew_desc=heb_question_desc)
+                # Add Answer Translation
+                elif key.startswith('a'):
+                    answer_order = int(key[-1])
+                    answer_desc = question[key]
+                    heb_answer_desc = translate_text(answer_desc)
+                    if key.endswith(str(question['c'])):
+                        is_correct = True
+                    else:
+                        is_correct = False
+                    # Answer object to edit (the saving is later in the proccess)
+                    currect_answer = AnswerOption(question = current_question, description = answer_desc, hebrew_desc = heb_answer_desc, order = answer_order, is_correct = is_correct)
+                    answers.append(currect_answer)
+            current_chapter['questions'].append({'order' : question_order, 'question' : current_question, 'answers' : answers})
+
+        current_chapter['type'] = chapter_type
+        test.append(current_chapter)
+    #     return render(request, 'Management/edit_test.html', {
+    #             'new_simulator' : test
+    #         })
+    # return render(request, 'Management/index.html')
+    return test
 
 def fetch_unused_words(request):
     words_list = []
@@ -289,6 +378,8 @@ def fetch_unused_words(request):
                 words_list.append(Word.objects.get(eng_word = word))
             except:
                 pass
+        if len(words_list) < 18:
+            words_list += list(Word.objects.exclude(level = 1).all())
         words_list = unused_words(words_list)
     except:
         all_words = list(Word.objects.exclude(level = 1).all())
