@@ -180,7 +180,7 @@ def save_new_simulator(request):
             elif key.strip().startswith('text-'):
                 chapter_text = value.strip()
                 current_chapter_object.reading_text = chapter_text
-                simulator.name += prompts.Generate_Text_Title(chapter_text)
+                simulator.name += " - " + prompts.Generate_Text_Title(chapter_text)
                 simulator.save()
                 current_chapter_object.save()
             elif key.strip().startswith('question-'):
@@ -238,6 +238,7 @@ def save_edited_simulator(request):
         print('Edited Simulator was saved successfully!')
     return redirect("index")
 
+### Translate a whole given simulator by id
 def add_simulator_heb_translation(request, simulator_id: int):
     simulator = Simulator.objects.get(id = simulator_id)
     simulator_chapters = Chapter.objects.filter(simulator = simulator).all()
@@ -255,11 +256,31 @@ def add_simulator_heb_translation(request, simulator_id: int):
                     answer.save()
     return redirect('index')
 
+### Translate a given text ###
 def translate_text(text_to_translate:str):
     translated_text = GoogleTranslator(source='en', target='hebrew').translate(text_to_translate)
 
     print(f"{text_to_translate} -> {translated_text}")
     return translated_text
+
+### Delete Simulator ###
+def delete_test(request, simulator_id = None):
+    simulators = Simulator.objects.all()
+    if simulator_id is None:
+        return render(request, 'Management/index.html',{
+            'simulators' : simulators,
+            'simulator_to_delete' : None
+        })
+    else:
+        simulator_to_delete = Simulator.objects.get(id = simulator_id)
+        simulator_name = simulator_to_delete.name
+        simulator_to_delete.delete()
+        simulators = Simulator.objects.all()
+        
+        return render(request, 'Management/index.html', {
+            'simulators' : simulators,
+            'simulator_to_delete' : simulator_name
+        })
 
 def create_simulator(request):
     if request.method == 'POST':
@@ -379,10 +400,10 @@ def fetch_unused_words(request):
             except:
                 pass
         if len(words_list) < 18:
-            words_list += list(Word.objects.exclude(level = 1).all())
+            words_list += list(Word.objects.exclude(word_level = 1).all())
         words_list = unused_words(words_list)
     except:
-        all_words = list(Word.objects.exclude(level = 1).all())
+        all_words = list(Word.objects.exclude(word_level = 1).all())
         words_list = unused_words(all_words)
 
     search_query = request.GET.get('q', '')
@@ -396,6 +417,7 @@ def fetch_unused_words(request):
 
     return JsonResponse(not_used_words, safe=False)
 
+### Select only the unused words from a list of words
 def unused_words(word_list: list[Word]) -> list[Word]:
     new_words_list = []
     for word in word_list:

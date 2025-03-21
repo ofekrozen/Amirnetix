@@ -266,3 +266,8 @@ nav ul li {
 .nav-btn.confirm-next {
     background-color: #28a745; /* Confirm Next Button Green */
 }
+
+.exit-simulator{
+    margin: 32px;
+    text-align: center;
+}

@@ -76,3 +76,8 @@ def finish_simulator(request):
 
 def Get_SimulatorsIds_To_Exclude() -> list:
     return [-1,0]
+
+def exit_simulator(request, attempt_id: int):
+    if request.method == "POST":
+        SimulatorAttempt.objects.get(id = attempt_id).delete()
+    return redirect('/Simulator')

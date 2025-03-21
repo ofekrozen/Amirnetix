@@ -36,7 +36,9 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 The input would be a list of words to choose the correct answers from.
                 The output should be in a JSON array format without any additional characters, including a question and four options for answers. The missing word is marked by: ___.
                 The sentences should be based on real life facts. The correct answer must be clearly the correct option.
-                The number of the correct answer should differ between each question.
+                Two IMPORTANT instructions:
+                1. The number of the correct answer should differ between each question.
+                2. The set of answers should include a correct answer from the given words list, and three other random words that ARE NOT in the given words list.
                 
                 An IMPORATANT REMINDER: The output should be a text that looks like a Json Array format, without any additional text.
                 The format should look exactly like this:
@@ -201,12 +203,12 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 The correct answer should replace the statement perfectly by it's meaning. One other answer option should be close, and the two other answer options should not be close. 
                 Here's an example for the format:
                 [{
-                'q' : (The generated phrase to restate),
-                'a1' : (1st option of answer),
-                'a2' : (2nd option of answer),
-                'a3' : (3rd option of answer),
-                'a4' : (4th option of answer),
-                'c' : (the number of the correct answer)
+                "q" : (The generated phrase to restate),
+                "a1" : (1st option of answer),
+                "a2" : (2nd option of answer),
+                "a3" : (3rd option of answer),
+                "a4" : (4th option of answer),
+                "c" : (the number of the correct answer)
                 },
                 ...]
 
@@ -214,20 +216,20 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 Input: Generate 3 Restatement questions using the following words: significance, fictional, reputation.
                 Output:
                 [{
-                'q' : "Although the scientist's discovery was groundbreaking, it took years for the academic community to recognize its significance.",
-                'a1' : "The scientist's discovery was immediately recognized as groundbreaking.",
-                'a2' : "The scientist’s discovery was not considered significant at first.",
-                'a3' : "The academic community quickly accepted the scientist's discovery.",
-                'a4' : "The scientist's discovery was never acknowledged by the academic community.",
+                "q" : "Although the scientist's discovery was groundbreaking, it took years for the academic community to recognize its significance.",
+                "a1" : "The scientist's discovery was immediately recognized as groundbreaking.",
+                "a2" : "The scientist’s discovery was not considered significant at first.",
+                "a3" : "The academic community quickly accepted the scientist's discovery.",
+                "a4" : "The scientist's discovery was never acknowledged by the academic community.",
                 'c' : 2
                 },
                 {
-                'q' : "Unlike his previous novels, the author’s latest book focuses on historical events rather than fictional stories.",
-                'a1' : "The author's latest book is about historical events, unlike his earlier novels.",
-                'a2' : "The author’s latest book is a fictional story like his previous novels.",
-                'a3' : "All of the author's books, including his latest, focus on historical events.",
-                'a4': "The author's latest book is a mix of historical facts and fiction.",
-                'c' : 1
+                "q" : "Unlike his previous novels, the author’s latest book focuses on historical events rather than fictional stories.",
+                "a1" : "The author's latest book is about historical events, unlike his earlier novels.",
+                "a2" : "The author’s latest book is a fictional story like his previous novels.",
+                "a3" : "All of the author's books, including his latest, focus on historical events.",
+                "a4": "The author's latest book is a mix of historical facts and fiction.",
+                "c" : 1
                 },
                 {
                 "q": "Even though the restaurant is quite expensive, it is always fully booked due to its excellent reputation.",
@@ -256,6 +258,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
         return {"questions" : questions}
     except json.JSONDecodeError:
         # If parsing fails, return a message with the raw text
+        print("the result: " + response.choices[0].message.content)
         return {"error": "Failed to parse response", "response": response.choices[0].message.content}
 
 def Generate_Text_Title (text : str):

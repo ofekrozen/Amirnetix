@@ -102,6 +102,14 @@
             <button class="btn btn-success" type="submit" id="finish-btn" onclick="return finishSimulatorClick()">Finish Simulator</button>
         </form>
     </div>
+    {% if simulator_attempt %}
+    <div class="exit-simulator">
+        <form id="exit-simulator-form" method="post" action="{% url 'exit_simulator' attempt_id=simulator_attempt.id %}">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit" id="exit-btn" onclick="return exitSimulatorClick()">Exit Simulator</button>
+        </form>
+    </div>
+    {% endif %}
 {% endif %}
 </div>
 {% endblock %}
@@ -124,9 +132,10 @@
     const finishBtn = document.querySelector("#finish-btn");
 
     // State Variables
-    let currentChapterCtr = 0;
-    let currentQuestionCtr = 0;
-    let currentMaxes = document.querySelector('.maxes');
+    let currentChapterCtr = 0; // Current number of Chapter
+    let currentQuestionCtr = 0; // Current number of question
+    let chapterQuestionsCompleted = 0; // The amount of questions answered this chapter
+    let currentMaxes = document.querySelector('.maxes'); // Maxes - contains the values of the current chapter's maxes
     let timerInterval;
     let answerJson = {};
     let timesJson = {};
@@ -220,9 +229,16 @@
 
     // Confirmation Before Skipping to Next Chapter
     function nextChapterClick(){
-        if (window.confirm("Are you sure you want to skip to the next chapter? You won't be able to go back.")){
-            nextChapter();
+        console.log(currentMaxes.getAttribute('data-maxquestion'));
+        console.log(chapterQuestionsCompleted);
+        if (currentMaxes.getAttribute('data-maxquestion') != chapterQuestionsCompleted){
+            alert("Complete all questions first!");
         }
+        else{
+        if (currentMaxes.getAttribute('data-maxquestion') == chapterQuestionsCompleted && window.confirm("Are you sure you want to skip to the next chapter? You won't be able to go back.")){
+            chapterQuestionsCompleted = 0;
+            nextChapter();
+        }}
     }
 
     // Timer Functionality
@@ -290,6 +306,10 @@
         answerJson[questionId] = 0;
         timesJson[questionId] = -1;
         answer.addEventListener('change', () => {
+            if(answerJson[questionId] == 0)
+            {
+             chapterQuestionsCompleted ++;   
+            }
             answerJson[questionId] = answer.id;
             timesJson[questionId] = Date.now();
             console.log(answerJson);
@@ -314,6 +334,9 @@
         else{
             return false;
         }
+    }
+    function exitSimulatorClick(){
+        return window.confirm("Are you sure you want to exit the simulator?");
     }
 </script>
 {% endblock %}
