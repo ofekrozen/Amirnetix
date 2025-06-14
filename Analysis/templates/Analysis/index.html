@@ -1,4 +1,4 @@
-{% extends "Analysis/layout.html" %}
+{% extends "Auth/layout.html" %}
 {% block body %}
     <!-- Header -->
 
@@ -42,7 +42,7 @@
                 <div class="scores">
                     <p class="details">{{simulator_attempt.get_success_rate}}%</p>
                 </div>
-                <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.id%}" class="btn btn-primary">ניתוח סימולטור</a>
+                <a href="{% url 'analyze_simulator' attempt_id=simulator_attempt.id%}" class="btn btn-primary">ניתוח סימולטור</a>
             </div>
         {% endfor %}
         

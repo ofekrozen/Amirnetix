@@ -8,6 +8,8 @@ from .models import Word,Word_Form
 import Amirnetix.prompts as prompts
 from deep_translator import GoogleTranslator
 import pandas as pd
+import os
+from django.conf import settings
 
 # Create your views here.
 
@@ -17,8 +19,8 @@ def index(request):
         return render(request,'Management/index.html',{
             'simulators' : simulators
         })
-    except:
-        return render(request,'Management/index.html')
+    except Exception as e: # Consider logging e or specific handling
+        return render(request,'Management/index.html') # Potentially show an error message
 
 def edit_test(request, simulator_id = None):
     if simulator_id is None:
@@ -35,8 +37,8 @@ def generate_test(request):
         try:
             last_simulator_id = Simulator.objects.all().last().id
             simulator = Simulator(name = f"Simulator number {last_simulator_id + 1}", description="mixed level Simulator")
-        except:
-            simulator = Simulator(name = f"First Simulator", description="mixed level Simulator")
+        except Simulator.DoesNotExist: # More specific exception
+            simulator = Simulator(name = "First Simulator", description="mixed level Simulator")
 
         test = []
         for i in range(1,7,1):
@@ -105,7 +107,10 @@ def upload_words(request, list_type:str):
     existing_words = [w.eng_word for w in Word.objects.all()]
     existing_word_forms = [w.eng_word for w in Word_Form.objects.all()]
     if list_type == "AWL":
-        awl_df = pd.read_excel(r'Amirnetix\academic_word_list.xlsx')
+        # Ensure 'project_data' directory exists at settings.BASE_DIR / 'project_data'
+        # The user is expected to place the files there.
+        academic_word_list_path = os.path.join(settings.BASE_DIR, 'project_data', 'academic_word_list.xlsx')
+        awl_df = pd.read_excel(academic_word_list_path)
         for i,row in awl_df.iterrows():
             root = row['Headword']
             related_words = str(row['Related word forms']) if str(row['Related word forms']).lower() != "nan" else None
@@ -113,7 +118,7 @@ def upload_words(request, list_type:str):
                 root_word = Word.objects.create(eng_word = root, heb_word = heb_trans, is_root = True, sublist = sublist, word_level = sublist)
                 heb_trans = root_word.heb_word
                 sublist = root_word.sublist
-                print(f"created the root: {root_word}")
+                # print(f"created the root: {root_word}") # Removed print
             else:
                 root_word = Word.objects.get(eng_word = root)
                 heb_trans = translate_text(root)
@@ -127,9 +132,10 @@ def upload_words(request, list_type:str):
                     if sub_word not in existing_word_forms:
                         heb_trans = translate_text(word_form_eng)
                         word_form = Word_Form.objects.create(root_word = root_word, eng_word = word_form_eng, heb_word = heb_trans)
-                        print(f"successfully created: {word_form}")
+                        # print(f"successfully created: {word_form}") # Removed print
     elif list_type == "GSL":
-        words_df = pd.read_csv(r'Amirnetix\GSL Words List.csv',header=None)
+        gsl_words_list_path = os.path.join(settings.BASE_DIR, 'project_data', 'GSL Words List.csv')
+        words_df = pd.read_csv(gsl_words_list_path, header=None)
         cnt = 0
         word_level = 1
         for i,words_list in words_df.iterrows():
@@ -140,12 +146,12 @@ def upload_words(request, list_type:str):
                 if word not in existing_words and word not in existing_word_forms:
                     heb_trans = translate_text(word)
                     current_word = Word.objects.create(eng_word = word, heb_word = heb_trans, word_level = word_level)
-                    print(f'Created {current_word}')
+                    # print(f'Created {current_word}') # Removed print
                 else:
                     current_word = Word.objects.get(eng_word = word)
                     current_word.word_level = word_level
                     current_word.source = "GSL"
-                    print(current_word)
+                    # print(current_word) # Removed print
                     current_word.save()
 
     
@@ -154,10 +160,14 @@ def upload_words(request, list_type:str):
 def save_new_simulator(request):
     if request.method == "POST":
         try:
-            simulator_number = Simulator.objects.all().count()
-            simulator = Simulator.objects.create(name = f"Simulator number {simulator_number + 1}", description="mixed level Simulator")
-        except:
-            simulator = Simulator.objects.create(name = f"First Simulator", description="mixed level Simulator")
+            # Consider using .exists() and then .count() if needed, or a more robust way to name simulators
+            # last_simulator = Simulator.objects.order_by('-id').first()
+            # simulator_number = last_simulator.id if last_simulator else 0
+            simulator_count = Simulator.objects.count() # Get current count
+            simulator = Simulator.objects.create(name = f"Simulator number {simulator_count + 1}", description="mixed level Simulator")
+        except Exception: # Catch a broader exception if count fails or for other issues, though specific is better.
+            # This fallback might lead to name collisions if "First Simulator" can exist multiple times or if count is unreliable.
+            simulator = Simulator.objects.create(name = "First Simulator", description="mixed level Simulator")
         chapter_type = None
         chapter_text = None
         time_limit = 0
@@ -235,7 +245,7 @@ def save_edited_simulator(request):
                     else:
                         answer.is_correct = False
                     answer.save()
-        print('Edited Simulator was saved successfully!')
+        # print('Edited Simulator was saved successfully!') # Removed print
     return redirect("index")
 
 ### Translate a whole given simulator by id
@@ -259,8 +269,7 @@ def add_simulator_heb_translation(request, simulator_id: int):
 ### Translate a given text ###
 def translate_text(text_to_translate:str):
     translated_text = GoogleTranslator(source='en', target='hebrew').translate(text_to_translate)
-
-    print(f"{text_to_translate} -> {translated_text}")
+    # print(f"{text_to_translate} -> {translated_text}") # Removed print
     return translated_text
 
 ### Delete Simulator ###
@@ -297,12 +306,15 @@ def create_simulator(request):
             # Assuming OpenAI API handling is in another function
             # api_response = send_to_openai_api(data)
             messages.success(request, "Your request has been sent successfully.")
-            print(f"Creating a test with according to:\n{words_ids_list}\ntext topic: {topic}")
+            # print(f"Creating a test with according to:\n{words_ids_list}\ntext topic: {topic}") # Removed print
             # **** Create a new Generate Test function! **** #
+            # Ensure this line is active as per subtask:
             return render(request, 'Management/edit_test.html', {
                 'new_simulator' : test_to_edit
             })
-        return render(request,'Management/index.html')
+        # If not words_ids_list or not topic, or other processing error before test_to_edit is made
+        return render(request,'Management/create_simulator.html', {'error_message': 'Failed to process request.'})
+
 
     return render(request, 'Management/create_simulator.html')
 
@@ -332,15 +344,15 @@ def generate_simulator_using_words (words_list : list[Word], topic: str) -> list
             for j in (1,2,3,4):
                 chapter_word_list.append(words_list.pop().eng_word)
             chapter_json_lst = prompts.Generate_Sentence_Completion_Chapter(chapter_word_list)
-            print(f"Sentence Completions {i}:")
-            print(chapter_json_lst['questions'])
+            # print(f"Sentence Completions {i}:") # Removed print
+            # print(chapter_json_lst['questions']) # Removed print
         elif i == 3:
             chapter_type = ChapterType.READING_COMPREHENSION
             title = f"{chapter_type} - {i}"
             time_limit = 15
             chapter_json_lst = prompts.Generate_Reading_Comprehension_Chapter(topic)
-            print(f"Reading Comprehension {i}:")
-            print(chapter_json_lst['questions'])
+            # print(f"Reading Comprehension {i}:") # Removed print
+            # print(chapter_json_lst['questions']) # Removed print
             simulator.save()
             this_chapter_object = Chapter(simulator = simulator, order = order,chapter_type = chapter_type, title = title, time_limit = time_limit)
             current_chapter['text'] = chapter_json_lst['text']
@@ -353,8 +365,8 @@ def generate_simulator_using_words (words_list : list[Word], topic: str) -> list
                 for j in (1,2,3):
                     chapter_word_list.append(words_list.pop().eng_word)
                 chapter_json_lst = prompts.Generate_Restatement_Chapter(chapter_word_list)
-                print(f"Restatements {i}:")
-                print(chapter_json_lst['questions'])
+                # print(f"Restatements {i}:") # Removed print
+                # print(chapter_json_lst['questions']) # Removed print
         question_order = 0
         for question in chapter_json_lst['questions']:
             question_order += 1
@@ -391,20 +403,10 @@ def generate_simulator_using_words (words_list : list[Word], topic: str) -> list
     return test
 
 def fetch_unused_words(request):
-    words_list = []
-    try:
-        words_df = pd.read_csv(r"C:\Users\ofeko\Desktop\Python\PyPdf2\words.csv")
-        for word in words_df["Word"]:
-            try:
-                words_list.append(Word.objects.get(eng_word = word))
-            except:
-                pass
-        if len(words_list) < 18:
-            words_list += list(Word.objects.exclude(word_level = 1).all())
-        words_list = unused_words(words_list)
-    except:
-        all_words = list(Word.objects.exclude(word_level = 1).all())
-        words_list = unused_words(all_words)
+    # Removed reading from hardcoded C:\ path.
+    # The view will now rely on words already in the database.
+    all_words = list(Word.objects.exclude(word_level=1).all()) # Example: Exclude basic words
+    words_list = unused_words(all_words) # Filter by usage
 
     search_query = request.GET.get('q', '')
     
@@ -430,8 +432,9 @@ def unused_words(word_list: list[Word]) -> list[Word]:
 def select_2(request):
     return render(request, "Management/select_2.html")
 
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def first_100(request):
     first_100_words = Word.objects.filter(word_level = 2).all().order_by('word_level')
-    for word in first_100_words:
-        print(word)
+    # for word in first_100_words: # Removed print
+        # print(word)
     return render(request,"Management/index.html")

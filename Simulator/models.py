@@ -48,12 +48,12 @@ class Chapter(models.Model):
     def __str__(self):
         return f"{self.simulator} - chapter number {self.order} - {self.chapter_type}"
     
-    # def clean(self):
-    #     super().clean()
-    #     if self.chapter_type == ChapterType.READING_COMPREHENSION and not self.reading_text:
-    #         raise ValidationError('Reading Comprehension chapters must have reading_text.')
-    #     elif self.chapter_type != ChapterType.READING_COMPREHENSION and self.reading_text:
-    #         raise ValidationError('Non Reading Comprehension chapters must not have a reading_text.')
+    def clean(self):
+        super().clean()
+        if self.chapter_type == ChapterType.READING_COMPREHENSION and not self.reading_text:
+            raise ValidationError('Reading Comprehension chapters must have reading_text.')
+        elif self.chapter_type != ChapterType.READING_COMPREHENSION and self.reading_text:
+            raise ValidationError('Non Reading Comprehension chapters must not have a reading_text.')
     
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -155,7 +155,10 @@ class SimulatorAttempt(models.Model):
         for key in success_rates:
             correct = success_rates[key]['correct']
             total = success_rates[key]['total']
-            success_rates[key]['success_rate'] = int(round(correct/total,2)*100)
+            if total > 0:
+                success_rates[key]['success_rate'] = int(round(correct/total,2)*100)
+            else:
+                success_rates[key]['success_rate'] = 0
         return success_rates
     
     def Answer_Times(self):
@@ -174,7 +177,11 @@ class SimulatorAttempt(models.Model):
             except:
                 pass
         for key in times['averages']:
-            times['averages'][key] = round(times['averages'][key] / self.Success_Rates()[key]['total'],2)
+            total_for_key = self.Success_Rates()[key]['total']
+            if total_for_key > 0:
+                times['averages'][key] = round(times['averages'][key] / total_for_key,2)
+            else:
+                times['averages'][key] = 0
         return times
 
 class UserAnswer(models.Model):

@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 import json
 from Simulator.models import *
 from Auth.models import *
-from Management.models import *
+from Management.models import * # Level_Choices should be here
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def index(request):
@@ -14,10 +15,15 @@ def index(request):
         "simulator_attempts" : simulator_attempts
     })
 
+@login_required(login_url='login')
 def vocab_home(request):
-    user = request.user
-    knowledge_data = Student_Word_Knowledge.objects.filter(student=user)
-    
+    if request.user.is_authenticated:
+        user = request.user # Keep user for existing logic
+        knowledge_data = Student_Word_Knowledge.objects.filter(student=user)
+    else:
+        # Handle case for unauthenticated user if necessary, or rely on @login_required
+        knowledge_data = Student_Word_Knowledge.objects.none()
+
     # Total words
     total_words = knowledge_data.count()
     
@@ -43,39 +49,45 @@ def vocab_home(request):
     }
     return render(request, "Analysis/vocab_home.html", context)
 
-def analyze_simulator(request,simulator_id):
-    try:
-        simulator_to_analyze = SimulatorAttempt.objects.get(id = int(simulator_id))
-        
-        answered_chapters = simulator_to_analyze.simulator.chapters.all()
-        simulator_attempt = {'simulator':simulator_to_analyze,'chapters':[]}
-        for chapter in answered_chapters:
-            current_chapter = {'chapter':chapter}
-            questions = []
-            q_cnt,correct_cnt = (0,0)
-            for question in chapter.questions.all():
-                q_cnt += 1
-                current_question = {'question' : question}
-                selected_answer = simulator_to_analyze.get_user_answer(question=question).selected_option
-                answers = []
-                for answer in question.answer_options.all():
-                    current_answer = {'answer' : answer}
-                    current_answer['is_correct'] = answer.is_correct
-                    current_answer['is_selected'] = True if answer == selected_answer else False
-                    correct_cnt += 1 if answer == selected_answer and answer.is_correct else 0
-                    answers.append(current_answer)
-                current_question['answers'] = answers
-                questions.append(current_question)
-            current_chapter['questions'] = questions
-            current_chapter['q_cnt'] = q_cnt
-            current_chapter['correct_cnt'] = correct_cnt
-            simulator_attempt['chapters'].append(current_chapter)
-        return render(request, 'Analysis/analyze_simulator.html',{
-            'simulator_attempt' : simulator_attempt
-        })
-    except:
-        print("unsuccessful")
-        return index(request)
+def analyze_simulator(request, attempt_id):
+    simulator_to_analyze = get_object_or_404(SimulatorAttempt, id=int(attempt_id))
+
+    answered_chapters = simulator_to_analyze.simulator.chapters.all()
+    simulator_analysis_data = {'simulator_attempt': simulator_to_analyze, 'chapters': []} # Changed key name for clarity
+    for chapter in answered_chapters:
+        current_chapter_dict = {'chapter': chapter}
+        questions_data = []
+        chapter_q_count = 0
+        chapter_correct_count = 0
+        for question in chapter.questions.all():
+            chapter_q_count += 1
+            current_question_dict = {'question': question}
+            user_answer_obj = simulator_to_analyze.get_user_answer(question=question)
+            selected_answer_obj = user_answer_obj.selected_option if user_answer_obj else None
+
+            is_question_correct = False
+            if selected_answer_obj and selected_answer_obj.is_correct:
+                chapter_correct_count += 1
+                is_question_correct = True
+            current_question_dict['is_user_correct'] = is_question_correct
+
+            answers_data = []
+            for answer_option in question.answer_options.all():
+                current_answer_dict = {'answer': answer_option}
+                current_answer_dict['is_correct'] = answer_option.is_correct
+                current_answer_dict['is_selected'] = (answer_option == selected_answer_obj)
+                answers_data.append(current_answer_dict)
+            current_question_dict['answers'] = answers_data
+            questions_data.append(current_question_dict)
+        current_chapter_dict['questions'] = questions_data
+        current_chapter_dict['q_cnt'] = chapter_q_count
+        current_chapter_dict['correct_cnt'] = chapter_correct_count
+        simulator_analysis_data['chapters'].append(current_chapter_dict)
+
+    return render(request, 'Analysis/analyze_simulator.html',{
+        'simulator_analysis_data' : simulator_analysis_data # Pass the new data structure
+    })
+
 @login_required(login_url='login')
 def english_vocab(request):
     # Get selected level from query parameter
@@ -83,22 +95,23 @@ def english_vocab(request):
     if selected_level:
         words = Word.objects.filter(word_level=selected_level).all()
     else:
-        words = Word.objects.all()
+        words = Word.objects.all() # This is a queryset of Word objects
     
-    user = request.user
-    if user:
-        user_knowledge = Student_Word_Knowledge.objects.all()
+    if request.user.is_authenticated:
+        user_knowledge_map = {
+            swk.word_id: swk.familiarity
+            for swk in Student_Word_Knowledge.objects.filter(student=request.user).select_related('word')
+        }
         words_list = []
-        for word in words:
-            try:
-                familiarity = user_knowledge.order_by('selection_date').filter(word = word, student = user).last().familiarity
-                words_list.append({'word':word,'familiarity':familiarity})
-            except:
-                words_list.append({'word':word,'familiarity':Level_Choices.NOT_CHOSEN})
+        for word_obj in words: # Iterate over the queryset
+            familiarity = user_knowledge_map.get(word_obj.id, Level_Choices.NOT_CHOSEN)
+            words_list.append({'word': word_obj, 'familiarity': familiarity})
     else:
+        # Should not happen due to @login_required, but as a fallback:
         words_list = []
-        for word in words:
-            words_list.append({'word':word,'familiarity':Level_Choices.NOT_CHOSEN})
+        for word_obj in words:
+            words_list.append({'word': word_obj, 'familiarity': Level_Choices.NOT_CHOSEN})
+
     # Get unique word levels for dropdown options
     levels = Word.objects.values_list('word_level', flat=True).distinct().order_by('word_level')
     fam_levels = []
@@ -114,30 +127,32 @@ def english_vocab(request):
         'fam_levels' : fam_levels
     })
 
-
-@csrf_exempt
+# @csrf_exempt # Removed, ensure CSRF token is sent by AJAX
 @login_required(login_url='login')
 def update_familiarity(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             word_id = data.get('word_id')
-            fam_level_symbol = data.get('fam_level')
+            fam_level_input = data.get('fam_level') # Assuming this is the integer value of the choice
             user = request.user
 
-            # Update the word's familiarity level in the database
-            word = Word.objects.get(id=word_id)
+            # Validate fam_level_input (ensure it's a valid choice in Level_Choices)
+            valid_familiarity_levels = [choice[0] for choice in Level_Choices.choices]
+            if int(fam_level_input) not in valid_familiarity_levels:
+                return JsonResponse({'success': False, 'error': 'Invalid familiarity level'}, status=400)
+
+            word = get_object_or_404(Word, id=word_id) # Use get_object_or_404 for Word
             
-            try:
-                word_fam = Student_Word_Knowledge.objects.get(student = user, word = word)
-                word_fam.familiarity = Level_Choices.choices[int(fam_level_symbol)][0]
-                word_fam.save()
-                print(f"Updated Familiarity level!\nFamiliarity: {word_fam}")
-            except:
-                word_fam = Student_Word_Knowledge.objects.create(student = user, word=word, familiarity = Level_Choices.choices[int(fam_level_symbol)][0])
-                print(f"Created Familiarity level!\nFamiliarity: {word_fam}")
-                
+            word_fam, created = Student_Word_Knowledge.objects.update_or_create(
+                student=user,
+                word=word,
+                defaults={'familiarity': int(fam_level_input)}
+            )
             
+            # Optionally, log if it was created or updated
+            # action_taken = "Created" if created else "Updated"
+            # print(f"{action_taken} Familiarity level! Familiarity: {word_fam}")
 
             return JsonResponse({'success': True})
         except Exception as e:

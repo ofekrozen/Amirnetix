@@ -1,2 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*pip-wheel-metadata/
+pip-freeze.txt
+pip-selfcheck.json
 
+# Django
+*.log
+db.sqlite3
+local_settings.py
+*.swo
+*.swp
+*~
+
+# Environment
+.env
+venv/
+env/
+ENV/
+virtualenv/
+.direnv/
+
+# Project specific
 Amirnetix/.env
+Amirnetix/GSL Words List.csv
+Amirnetix/academic_word_list.xlsx
