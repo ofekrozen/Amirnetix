@@ -2,6 +2,7 @@ from django.db import models
 from Auth.models import CustomUser
 from django.core.exceptions import ValidationError
 from datetime import datetime
+from django.db import transaction
 
 # Create your models here.
 class SimulatorLevel(models.IntegerChoices):
@@ -99,6 +100,25 @@ class AnswerOption(models.Model):
 
     def __str__(self):
         return f"{self.question} - Option number {self.order}"
+
+    def save(self, *args, **kwargs):
+        # If this option is being marked as correct,
+        # ensure other options for the same question are not marked as correct.
+        if self.is_correct:
+            with transaction.atomic(): # Ensure this operation is atomic
+                # Select other AnswerOption instances for the same question
+                # that are currently marked as correct.
+                other_correct_options = AnswerOption.objects.filter(
+                    question=self.question,
+                    is_correct=True
+                ).exclude(pk=self.pk) # Exclude self if already saved
+
+                # Unmark them
+                for option in other_correct_options:
+                    option.is_correct = False
+                    super(AnswerOption, option).save(update_fields=['is_correct']) # Call super to avoid recursion on these saves
+
+        super(AnswerOption, self).save(*args, **kwargs) # Call the "real" save method for the current instance
 
 class SimulatorAttempt(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='simulator_attempts')
