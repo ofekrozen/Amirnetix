@@ -7,13 +7,10 @@ from django.contrib.auth import logout
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
-        print(form.errors)
         if form.is_valid():
-            print("form is valid")
             user = form.save()
-            return render(request,'Auth/login.html',{'form' : form})
-            # login(request, user)  # Log the user in after registration
-            # return redirect('home')
+            login(request, user)  # Log the user in after registration
+            return redirect('home')
         else:
             return render(request, 'Auth/register.html', {'form': form, "alert" : form.errors})
     

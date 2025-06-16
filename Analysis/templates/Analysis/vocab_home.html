@@ -1,4 +1,4 @@
-{% extends "Analysis/layout.html" %}
+{% extends "Auth/layout.html" %}
     
     {% block body %}
     <div dir="rtl" class="container">
@@ -7,31 +7,35 @@
         <!-- Filter Section -->
         <div class="filter-section" dir="rtl">
             <!-- Search Bar -->
-            <input type="text" id="search-bar" placeholder="חפש מילים..." onkeyup="filterSimulators()">
+            <input type="text" id="search-bar" placeholder="חפש מילים..." onkeyup="filterTable()">
 
             <!-- Filter by Level -->
-            <select name="level" id="level-filter" onchange="filterSimulators()">
+            <select name="level" id="level-filter" onchange="filterTable()">
                 <!-- Add a for loop for the level of the word -->
-                <option value="all">רמת תדירות</option>
+                <option value="all">רמת תדירות (הכל)</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
+                {# Add other levels if they exist, or make this dynamic if word_level is not fixed #}
             </select>
 
-            <!-- Filter by Subject -->
-            <select name="subject" id="subject-filter" onchange="filterSimulators()">
-                <option value="all">חלק במשפט</option>
-                <option value="sentence-completion">תואר</option>
-                <option value="restatements">פועל</option>
-                <option value="reading-comprehension">עצם</option>
+            <!-- Filter by Part of Speech -->
+            <select name="subject" id="subject-filter" onchange="filterTable()">
+                <option value="all">חלק במשפט (הכל)</option>
+                <option value="noun">Noun</option>
+                <option value="verb">Verb</option>
+                <option value="adjective">Adjective</option>
+                <option value="adverb">Adverb</option>
+                <option value="other">Other</option>
             </select>
 
-            <!-- Filter by Completion Status -->
-            <select name="status" id="status-filter" onchange="filterSimulators()">
-                <option value="all">סימון</option>
-                <option value="done">סימון "✓"</option>
-                <option value="not-done">סימון "-"</option>
-                <option value="not-done">סימון "✗"</option>
+            <!-- Filter by Familiarity Marking -->
+            <select name="status" id="status-filter" onchange="filterTable()">
+                <option value="all">סימון (הכל)</option>
+                <option value="0">O (לא סומנו)</option>
+                <option value="1">✓ (מושלם)</option>
+                <option value="2">- (חלקי)</option>
+                <option value="3">✗ (כלל לא)</option>
             </select>
         </div>
         <!-- Overview Statistics -->
@@ -81,9 +85,14 @@
                     <th>תאריך סימון</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="word-table-body"> {# Add an ID to the tbody for easier JS selection #}
                 {% for word_knowledge in words_knowledge %}
-                <tr>
+                <tr
+                    data-eng-word="{{ word_knowledge.word.eng_word|lower }}"
+                    data-heb-word="{{ word_knowledge.word.heb_word|default_if_none:''|lower }}"
+                    data-frequency-level="{{ word_knowledge.word.word_level }}"
+                    data-part-of-speech="{{ word_knowledge.word.part_of_speech|default_if_none:'none'|lower }}"
+                    data-familiarity="{{ word_knowledge.familiarity }}">
                     <td><b>{{ word_knowledge.word.eng_word }}</b></td>
                     <td>{{ word_knowledge.word.heb_word }}</td>
                     <td>{{ word_knowledge.word.word_level }}</td>
@@ -91,10 +100,11 @@
                         <td class="text-success">{{ word_knowledge.get_familiarity_display }}</td>
                     {% elif word_knowledge.familiarity == 2 %}
                         <td class="text-warning">{{ word_knowledge.get_familiarity_display }}</td>
-                    {% else %}
+                    {% elif word_knowledge.familiarity == 3 %}
                         <td class="text-danger">{{ word_knowledge.get_familiarity_display }}</td>
+                    {% else %} {# Handles familiarity 0 or any other undefined cases #}
+                        <td>{{ word_knowledge.get_familiarity_display }}</td>
                     {% endif %}
-                    <!-- <td>{{ word_knowledge.get_familiarity_display }}</td> -->
                     <td>{{ word_knowledge.selection_date|date:"Y-m-d" }}</td>
                 </tr>
                 {% endfor %}
@@ -105,7 +115,7 @@
     {% block scripts %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Chart Data
+        // Chart Data (existing script for chart)
         const ctx = document.getElementById('familiarityChart').getContext('2d');
         const data = {
             labels: ['סימון "✓"', 'סימון "-"', 'סימון "✗"'],
@@ -120,5 +130,51 @@
             data: data
         };
         new Chart(ctx, config);
+
+        // New script for table filtering
+        function filterTable() {
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const frequencyLevelFilter = document.getElementById('level-filter').value;
+            const partOfSpeechFilter = document.getElementById('subject-filter').value; // Still named subject-filter in HTML ID
+            const familiarityFilter = document.getElementById('status-filter').value; // Still named status-filter in HTML ID
+
+            const tableBody = document.getElementById('word-table-body');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const engWord = row.getAttribute('data-eng-word');
+                const hebWord = row.getAttribute('data-heb-word');
+                const frequencyLevel = row.getAttribute('data-frequency-level');
+                const partOfSpeech = row.getAttribute('data-part-of-speech');
+                const familiarity = row.getAttribute('data-familiarity');
+
+                let display = true;
+
+                // Search term filter (checks both English and Hebrew words)
+                if (searchTerm && !(engWord.includes(searchTerm) || (hebWord && hebWord.includes(searchTerm)))) {
+                    display = false;
+                }
+
+                // Frequency level filter
+                if (display && frequencyLevelFilter !== 'all' && frequencyLevel !== frequencyLevelFilter) {
+                    display = false;
+                }
+
+                // Part of speech filter
+                if (display && partOfSpeechFilter !== 'all' && partOfSpeech !== partOfSpeechFilter) {
+                    display = false;
+                }
+
+                // Familiarity filter
+                if (display && familiarityFilter !== 'all' && familiarity !== familiarityFilter) {
+                    display = false;
+                }
+
+                row.style.display = display ? '' : 'none';
+            }
+        }
+        // Optional: run on load if you want to apply filters based on initial dropdown values
+        // document.addEventListener('DOMContentLoaded', filterTable);
     </script>
 {% endblock %}

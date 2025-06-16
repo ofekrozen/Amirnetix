@@ -1,4 +1,4 @@
-{% extends "Simulator/layout.html" %}
+{% extends "Auth/layout.html" %}
 {% block header %} - Simulator{% endblock %}
 {% block body %}
 <div class="div-simulator">
@@ -132,6 +132,7 @@
     const finishBtn = document.querySelector("#finish-btn");
 
     // State Variables
+    const totalChapters = parseInt("{{ simulator.chapters.count|default:0 }}");
     let currentChapterCtr = 0; // Current number of Chapter
     let currentQuestionCtr = 0; // Current number of question
     let chapterQuestionsCompleted = 0; // The amount of questions answered this chapter
@@ -174,14 +175,14 @@
         }
 
         // Handle Finish Button Visibility
-        if(currentChapterCtr === 6 && currentQuestionCtr === maxQuestions){
+        if(currentChapterCtr === totalChapters && currentQuestionCtr === maxQuestions){
             navDiv.style.display = "none";
             finishDiv.classList.remove('hidden');
             finishBtn.style.display = "block";
             finishBtn.disabled = false;
             nextChapterBtn.style.display = "none";
         }
-        else if(currentChapterCtr === 6){
+        else if(currentChapterCtr === totalChapters){
             navDiv.style.display = "none";
             finishDiv.classList.remove('hidden');
             finishBtn.style.display = "block";
@@ -212,7 +213,6 @@
 
         currentChapterCtr += 1;
         currentQuestionCtr = 1;
-        console.log(currentChapterCtr +" - " + currentQuestionCtr)
         updateChapterProgress();
         updateCurrentMaxes();
 
@@ -229,8 +229,6 @@
 
     // Confirmation Before Skipping to Next Chapter
     function nextChapterClick(){
-        console.log(currentMaxes.getAttribute('data-maxquestion'));
-        console.log(chapterQuestionsCompleted);
         if (currentMaxes.getAttribute('data-maxquestion') != chapterQuestionsCompleted){
             alert("Complete all questions first!");
         }
@@ -312,8 +310,6 @@
             }
             answerJson[questionId] = answer.id;
             timesJson[questionId] = Date.now();
-            console.log(answerJson);
-            console.log(timesJson);
             document.querySelector('#question-progress-step-' + questionOrder).classList.add('answered');
         });
     });

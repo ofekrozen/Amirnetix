@@ -35,10 +35,7 @@ class Word(models.Model):
         return f"{self.eng_word} - {self.heb_word} - {self.word_level}"
     
     def is_used(self):
-        for answer in AnswerOption.objects.all():
-            if self.eng_word in answer.description:
-                return True
-        return False
+        return AnswerOption.objects.filter(description__icontains=self.eng_word).exists()
 
 class Word_Form(models.Model):
     root_word = models.ForeignKey(Word,on_delete=models.CASCADE)

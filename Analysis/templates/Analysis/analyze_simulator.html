@@ -1,13 +1,13 @@
-{% extends 'Analysis/layout.html' %}
+{% extends 'Auth/layout.html' %}
 {% load static %}
 {% block body %}
-{% if simulator_attempt %}
+{% if simulator_analysis_data %}
 <div class="analysis-container">
-    <h2 class="simulator-title" dir="rtl">{{ simulator_attempt.simulator.simulator }} מתאריך {{simulator_attempt.simulator.start_time}}</h2>
+    <h2 class="simulator-title" dir="rtl">{{ simulator_analysis_data.simulator_attempt.simulator.name }} מתאריך {{simulator_analysis_data.simulator_attempt.start_time}}</h2>
     <div class="metrics-container">
-    <h3 style="text-align: center;" dir="rtl">ציון משוער: {{simulator_attempt.simulator.Success_Rates.Total.success_rate|add:50}}</h3>
+    <h3 style="text-align: center;" dir="rtl">ציון משוער: {{simulator_analysis_data.simulator_attempt.Success_Rates.Total.success_rate|add:50}}</h3>
         
-        {{simulator_attempt.simulator.Time_Per_Question}}
+        {# {{simulator_analysis_data.simulator_attempt.Time_Per_Question}} #} {# Assuming Time_Per_Question was a method or property #}
         <table class="metrics-table" dir="rtl">
             <thead>
                 <tr>
@@ -21,23 +21,23 @@
             <tbody>
                 <tr>
                     <th>שיעור הצלחה</th>
-                    <td>{{simulator_attempt.simulator.Success_Rates.Total.correct}}/{{simulator_attempt.simulator.Success_Rates.Total.total}} | {{simulator_attempt.simulator.Success_Rates.Total.success_rate}}%</td>
-                    <td>{{simulator_attempt.simulator.Success_Rates.SC.correct}}/{{simulator_attempt.simulator.Success_Rates.SC.total}} | {{simulator_attempt.simulator.Success_Rates.SC.success_rate}}%</td>
-                    <td>{{simulator_attempt.simulator.Success_Rates.RC.correct}}/{{simulator_attempt.simulator.Success_Rates.RC.total}} | {{simulator_attempt.simulator.Success_Rates.RC.success_rate}}%</td>
-                    <td>{{simulator_attempt.simulator.Success_Rates.RS.correct}}/{{simulator_attempt.simulator.Success_Rates.RS.total}} | {{simulator_attempt.simulator.Success_Rates.RS.success_rate}}%</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Success_Rates.Total.correct}}/{{simulator_analysis_data.simulator_attempt.Success_Rates.Total.total}} | {{simulator_analysis_data.simulator_attempt.Success_Rates.Total.success_rate}}%</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Success_Rates.SC.correct}}/{{simulator_analysis_data.simulator_attempt.Success_Rates.SC.total}} | {{simulator_analysis_data.simulator_attempt.Success_Rates.SC.success_rate}}%</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Success_Rates.RC.correct}}/{{simulator_analysis_data.simulator_attempt.Success_Rates.RC.total}} | {{simulator_analysis_data.simulator_attempt.Success_Rates.RC.success_rate}}%</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Success_Rates.RS.correct}}/{{simulator_analysis_data.simulator_attempt.Success_Rates.RS.total}} | {{simulator_analysis_data.simulator_attempt.Success_Rates.RS.success_rate}}%</td>
                 </tr>
                 <tr>
                     <th>זמן מענה ממוצע לשאלה</th>
-                    <td>{{simulator_attempt.simulator.Answer_Times.averages.Total}} שניות</td>
-                    <td>{{simulator_attempt.simulator.Answer_Times.averages.SC}} שניות</td>
-                    <td>{{simulator_attempt.simulator.Answer_Times.averages.RC}} שניות</td>
-                    <td>{{simulator_attempt.simulator.Answer_Times.averages.RS}} שניות</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Answer_Times.averages.Total}} שניות</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Answer_Times.averages.SC}} שניות</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Answer_Times.averages.RC}} שניות</td>
+                    <td>{{simulator_analysis_data.simulator_attempt.Answer_Times.averages.RS}} שניות</td>
                 </tr>
             </tbody>
         </table>
     </div>
     
-    {% for chapter in simulator_attempt.chapters %}
+    {% for chapter in simulator_analysis_data.chapters %}
     <div class="chapter">
         <h3 class="chapter-title" onclick="toggleChapter(this)">Chapter number {{chapter.chapter.order}} - {{ chapter.chapter.get_chapter_type_display }} <span>({{chapter.correct_cnt}}/{{chapter.q_cnt}})</span></h3>
         <div class="chapter-content">
@@ -125,7 +125,6 @@
         element.classList.toggle('flipped');
         let children = element.firstElementChild.children;
         for (let i = 0;i < children.length; i++) {
-            console.log(children[i]);
             children[i].classList.toggle('hidden');
         };
     }
