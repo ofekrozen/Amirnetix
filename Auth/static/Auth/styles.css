@@ -67,7 +67,12 @@ nav ul li {
     margin-right: 8px;
     border: none;
 }
-
+.btn-outline-secondary{
+    color: #6c757d;
+}
+.btn-outline-primary{
+    color: #0d6efd;
+}
 
 /* Authentication Pages (Login & Registration) */
 .auth-container {

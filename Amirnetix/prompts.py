@@ -6,7 +6,10 @@ import os
 from Simulator.models import *
 
 load_dotenv(override=True)
+
 client = openai.OpenAI(api_key = os.getenv('OPENAI_API_KEY'))
+
+
 
 
 def Generate_Sentence_Completion_Chapter(words_list: list[str]):
@@ -42,7 +45,7 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 
                 An IMPORATANT REMINDER: The output should be a text that looks like a Json Array format, without any additional text.
                 The format should look exactly like this:
-                [
+                {"chapter":[
                 {
                 "q" : (generated question),
                 "a1" : (1st generated answer),
@@ -50,13 +53,22 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 "a3" : (3rd generated answer),
                 "a4" : (4th generated answer),
                 "c" : (the number of the correct answer)
-                }
+                },
+                {
+                "q" : (generated question),
+                "a1" : (1st generated answer),
+                "a2" : (2nd generated answer),
+                "a3" : (3rd generated answer),
+                "a4" : (4th generated answer),
+                "c" : (the number of the correct answer)
+                },...
                 ]
+                }
 
                 for example:
                 Input: Generate four Sentence Completion questions with the following list of words: flapping, immense, incorporate, vendors.
                 Output:
-                [
+                {"chapter": [
                 {
                 "q" : "The butterfly fish can leap out of the water and soar thorugh the air, ___ its fins like wings",
                 "a1" : "flapping",
@@ -89,20 +101,21 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 "a4" : "vendors",
                 "c" : 4
                 }
-                ]
+                ]}
              '''
          }
     ]
     response = client.chat.completions.create(
         model = "gpt-3.5-turbo-1106",
         messages = messages,
-        temperature = 0.7
+        temperature = 0.7,
+        response_format= {"type": "json_object"}
     )
     response.choices[0].message.content = response.choices[0].message.content.replace("json","")
     response.choices[0].message.content = response.choices[0].message.content.replace("```","")
     print(response.choices[0].message.content)
     try:
-        questions = json.loads(response.choices[0].message.content)
+        questions = json.loads(response.choices[0].message.content)["chapter"]
         return {"questions" : questions}
     except json.JSONDecodeError:
         # If parsing fails, return a message with the raw text
@@ -202,7 +215,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 A Restatement question is a statement in an academic level of English, made of a sophisticated sentence or two, about a random subject, and the answer options are statements that potentially could replace the original statement.
                 The correct answer should replace the statement perfectly by it's meaning. One other answer option should be close, and the two other answer options should not be close. 
                 Here's an example for the format:
-                [{
+                {"chapter":[{
                 "q" : (The generated phrase to restate),
                 "a1" : (1st option of answer),
                 "a2" : (2nd option of answer),
@@ -210,12 +223,12 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 "a4" : (4th option of answer),
                 "c" : (the number of the correct answer)
                 },
-                ...]
+                ...]}
 
                 Here's an example:
                 Input: Generate 3 Restatement questions using the following words: significance, fictional, reputation.
                 Output:
-                [{
+                {"chapter:[{
                 "q" : "Although the scientist's discovery was groundbreaking, it took years for the academic community to recognize its significance.",
                 "a1" : "The scientist's discovery was immediately recognized as groundbreaking.",
                 "a2" : "The scientist’s discovery was not considered significant at first.",
@@ -239,7 +252,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 "a4": "The restaurant’s reputation has declined due to its high prices.",
                 "c": 2
                 }
-                ]
+                ]}
              '''
          }
     ]
@@ -247,14 +260,15 @@ def Generate_Restatement_Chapter(words_list: list[str]):
     response = client.chat.completions.create(
         model = "gpt-3.5-turbo-1106",
         messages = messages,
-        temperature = 0.7
+        temperature = 0.7,
+        response_format= {"type": "json_object"}
     )
     response.choices[0].message.content = response.choices[0].message.content.replace("json","")
     response.choices[0].message.content = response.choices[0].message.content.replace("```","")
 
     print(response.choices[0].message.content)
     try:
-        questions = json.loads(response.choices[0].message.content)
+        questions = json.loads(response.choices[0].message.content)["chapter"]
         return {"questions" : questions}
     except json.JSONDecodeError:
         # If parsing fails, return a message with the raw text
