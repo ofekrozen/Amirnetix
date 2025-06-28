@@ -10,7 +10,7 @@
     {% if chapter.text %}
     <div class="text">
         <textarea name="text-{{chapter.order}}" rows="30" cols="70">{{chapter.text}}</textarea>
-        <textarea name="heb_text-{{chapter.order}}" rows="30" cols="70">{{chapter.hebrew_text}}</textarea>
+        <textarea name="hebrew_text-{{chapter.order}}" rows="30" cols="70">{{chapter.hebrew_text}}</textarea>
     </div>
     {% endif %}
     {% for question in chapter.questions %}

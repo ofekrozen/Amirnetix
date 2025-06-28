@@ -23,6 +23,7 @@ class Word(models.Model):
         ('other', 'Other')
     ],default=None, blank=True, null=True)
     sublist = models.IntegerField(default=None, blank=True,null=True)  # AWL sublist (1-10)
+    is_used = models.BooleanField(default=False)  # Indicates if the word is used in any test
     word_level = models.IntegerField(default=0, choices=Level_Choices.choices)
     source = models.CharField(max_length=50, default=None, blank=True, null=True)
     example_sentence = models.TextField(default=None, blank=True, null=True)
@@ -34,11 +35,11 @@ class Word(models.Model):
     def __str__(self):
         return f"{self.eng_word} - {self.heb_word} - {self.word_level}"
     
-    def is_used(self):
-        for answer in AnswerOption.objects.all():
-            if self.eng_word in answer.description:
-                return True
-        return False
+    # def is_used(self):
+    #     for answer in AnswerOption.objects.all():
+    #         if self.eng_word in answer.description:
+    #             return True
+    #     return False
 
 class Word_Form(models.Model):
     root_word = models.ForeignKey(Word,on_delete=models.CASCADE)

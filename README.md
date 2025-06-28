@@ -39,7 +39,7 @@ to run the project
 
 ### ToDos
 
-* fix - repeating words in the answers of Simulator Questions within each Chapter (fix in prompts)
-* fix requirements.txt
+* english_vocab: Fix loading time - each level loaded on its own
 * Synchronize style/css
+* fix requirements.txt
 * Add Simulators

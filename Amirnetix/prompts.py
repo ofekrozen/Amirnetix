@@ -35,39 +35,47 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
          {
              'role' : 'assistant',
              'content' : '''
-                Your goal is to simulate Sentence Completion questions of a pre-academy English test as accurate as possible.
-                The input would be a list of words to choose the correct answers from.
-                The output should be in a JSON array format without any additional characters, including a question and four options for answers. The missing word is marked by: ___.
-                The sentences should be based on real life facts. The correct answer must be clearly the correct option.
-                Two IMPORTANT instructions:
-                1. The number of the correct answer should differ between each question.
-                2. The set of answers should include a correct answer from the given words list, and three other random words that ARE NOT in the given words list.
-                
-                An IMPORATANT REMINDER: The output should be a text that looks like a Json Array format, without any additional text.
-                The format should look exactly like this:
-                {"chapter":[
-                {
-                "q" : (generated question),
-                "a1" : (1st generated answer),
-                "a2" : (2nd generated answer),
-                "a3" : (3rd generated answer),
-                "a4" : (4th generated answer),
-                "c" : (the number of the correct answer)
-                },
-                {
-                "q" : (generated question),
-                "a1" : (1st generated answer),
-                "a2" : (2nd generated answer),
-                "a3" : (3rd generated answer),
-                "a4" : (4th generated answer),
-                "c" : (the number of the correct answer)
-                },...
-                ]
-                }
+                Your goal is to simulate high-quality Sentence Completion questions for a pre-academic English test.
 
-                for example:
-                Input: Generate four Sentence Completion questions with the following list of words: flapping, immense, incorporate, vendors.
-                Output:
+                You will receive a list of vocabulary words. Each word should be used as the **correct answer in exactly one question**, no repeats.
+
+                Each question should:
+                - Be a real-life fact-based English sentence with a missing word marked by ___.
+                - Clearly require only one correct word from the list – **that one word should be a significantly better fit than any other option**.
+                - Include four answer choices:
+                • One correct word (from the list).
+                • One distractor (plausible but not fully correct).
+                • Two unrelated or clearly incorrect words (grammatically valid but not fitting the sentence).
+
+                **Very Important Guidelines**:
+                1. The correct answer must be **the best and clearest choice**. No ambiguity allowed.
+                2. The correct word should appear in only one question.
+                3. The other three answer options must **NOT** be taken from the given list.
+                4. Only **one** distractor per question should be even slightly plausible; the other two should be clearly wrong.
+                5. The position of the correct answer (c) must vary between questions.
+                6. Do **not** reuse distractor words across questions.
+                7. Output must be **only** a valid JSON object in the following format – with no extra text:
+
+                {"chapter": [
+                {
+                "q": (question sentence with ___),
+                "a1": (first answer option),
+                "a2": (second answer option),
+                "a3": (third answer option),
+                "a4": (fourth answer option),
+                "c": (number of the correct answer, 1–4)
+                },
+                ...
+                ]}
+
+                Example input:
+                Generate four Sentence Completion questions with the following list of words: flapping, immense, incorporate, vendors.
+
+                Expected output:
+                Each sentence uses one unique correct word from the list.
+                Only one of the incorrect answers is misleading. The other two are far off in meaning but still grammatically valid.
+                Output is in pure JSON as described above.
+                Example Output:
                 {"chapter": [
                 {
                 "q" : "The butterfly fish can leap out of the water and soar thorugh the air, ___ its fins like wings",
@@ -106,7 +114,7 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
          }
     ]
     response = client.chat.completions.create(
-        model = "gpt-3.5-turbo-1106",
+        model = "gpt-4o",
         messages = messages,
         temperature = 0.7,
         response_format= {"type": "json_object"}
@@ -156,12 +164,14 @@ def Generate_Reading_Comprehension_Chapter(topic: str):
     messages[1]['content'] = f'''
         {generated_text}
         Generate five Reading Comprehension questions to measure the user's understanding of the above text.
+        Three questions should be SPECIFIC, focusing on particular details in the text, 
+        and two questions should be GENERAL, focusing on the overall understanding of the text.
     '''
     messages[2]['content'] = '''
         The output should be in a JSON array format without any additional characters.
         Use both specific and general questions: specific questions - trying to check if the student manages to understand the particular reffered sentence/word in the text, general questions - Trying to check if the student manages to fully understand the text as a hole.
         Here's an example for the format:
-        [{
+        {"chapter": [{
             'q' : (your generated question),
             'a1' : (1st generated answer),
             'a2' : (2nd generated answer),
@@ -169,20 +179,21 @@ def Generate_Reading_Comprehension_Chapter(topic: str):
             'a4' : (4th generated answer),
             'c' : (the number of the correct answer)
         }
-        ]
+        ]}
     '''
     
     response = client.chat.completions.create(
-        model = "gpt-3.5-turbo-1106",
+        model = "gpt-4o",
         messages = messages,
-        temperature = 0.7
+        temperature = 0.7,
+        response_format= {"type": "json_object"}
     )
     
     response.choices[0].message.content = response.choices[0].message.content.replace("json","")
     response.choices[0].message.content = response.choices[0].message.content.replace("```","")
 
     try:
-        question_lst = json.loads(response.choices[0].message.content)
+        question_lst = json.loads(response.choices[0].message.content)["chapter"]
     except json.JSONDecodeError:
         # If parsing fails, return a message with the raw text
         question_lst = {"error": "Failed to parse response", "response": response.choices[0].message.content}
@@ -258,7 +269,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
     ]
 
     response = client.chat.completions.create(
-        model = "gpt-3.5-turbo-1106",
+        model = "gpt-4o",
         messages = messages,
         temperature = 0.7,
         response_format= {"type": "json_object"}
