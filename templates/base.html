@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <a href="/" class="navbar-brand">Project Name</a>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <!-- Add other global navigation links here -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        <!-- Content will be inserted here by child templates -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="container text-center mt-3 mb-2">
+            <p>&copy; {% now "Y" %} Your Company Name. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}
+    <!-- Optional: Block for page-specific JavaScript files -->
+    {% endblock %}
+</body>
+</html>
