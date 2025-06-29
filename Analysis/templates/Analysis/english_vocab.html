@@ -12,12 +12,12 @@
     <!-- Level filter buttons -->
     <div class="level-filter">
         {% for level in levels %}
-            <button class="btn level-btn" data-level="{{level}}">Level {{level}}</button>
+            <a href="/Analysis/english_vocab/{{level}}" class="btn level-btn" data-level="{{level}}">Level {{level}}</a>
         {% endfor %}
     </div>
 
     <div class="container-title">
-        <h3 class="title-header"></h3>
+        <h3 class="title-header">מילים ברמה - {{selected_level}}</h3>
     </div>
     <!-- Familiarity Level Filter -->
     <div>
@@ -34,7 +34,7 @@
     <div class="card-container">
         {% for word in words_list %}
         <!-- Display only words of the selected level -->
-        <div class="word" data-word-level="{{ word.word.word_level }}" data-word-fam = "{{ word.familiarity }}">
+        <div class="word" id="word_id-{{word.word.id}}" data-word-level="{{ word.word.word_level }}" data-word-fam = "{{ word.familiarity }}">
             <div class="word-card">
                 <div class="word-card-inner">
                     <div class="word-card-front">
@@ -72,27 +72,30 @@
 {% block scripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    var selectedLevel = 1;
+    var selectedLevel = window.location.href.split('/');
+    selectedLevel = selectedLevel[selectedLevel.length - 1];
+    console.log("Selected Level: " + selectedLevel);
     var selectedFam = -1;
     const title = document.querySelector('.title-header');
     document.addEventListener('DOMContentLoaded',()=>{
+        selectedLevel = document.getElementById('selected-level').value;
         title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
         // Initially filter only level 1 words
         document.querySelectorAll('.word').forEach(word => {
-            word.style.display = word.getAttribute('data-word-level') === "1" ? 'block' : 'none';
+            word.style.display = word.getAttribute('data-word-level') === selectedLevel ? 'block' : 'none';
         });
     });
 
     // Filter by level
-    document.querySelectorAll('.level-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            selectedLevel = button.getAttribute('data-level');
-            title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
-            document.querySelectorAll('.word').forEach(word => {
-                word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel? 'block' : 'none';
-            });
-        });
-    });
+    // document.querySelectorAll('.level-btn').forEach(button => {
+    //     button.addEventListener('click', () => {
+    //         selectedLevel = button.getAttribute('data-level');
+    //         title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
+    //         document.querySelectorAll('.word').forEach(word => {
+    //             word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel? 'block' : 'none';
+    //         });
+    //     });
+    // });
 
     // Filter by familiarity
     document.querySelectorAll('.fam-filter-btn').forEach(button =>{
@@ -143,7 +146,6 @@
         const famLevel = this.getAttribute('data-fam-level');
 
         // AJAX request to update familiarity level
-        /* ******** Add update_familiarity function on views ********* */
         fetch('/Analysis/update_familiarity/', {
             method: 'POST',
             headers: {
@@ -159,27 +161,29 @@
             if (!response.ok) {
                 throw new Error('Failed to update familiarity level - 1');
             }
+            
             return response.json();
         })
         .then(data => {
             if (data.success) {
                 // Update button UI to reflect new familiarity level
+                document.getElementById(`word_id-${wordId}`).setAttribute('data-word-fam', famLevel); // New Line
                 document.querySelectorAll(`[data-word-id="${wordId}"]`).forEach(btn => {
                     btn.classList.replace('selected','unselected');
                     btn.classList.replace('btn-success', 'btn-secondary');
                     btn.classList.replace('btn-warning', 'btn-secondary');
                     btn.classList.replace('btn-danger', 'btn-secondary');
+                    if(this.getAttribute('data-fam-level') == 1){
+                        this.classList.replace('btn-secondary', 'btn-success');
+                    }
+                    else if(this.getAttribute('data-fam-level') == 2){
+                        this.classList.replace('btn-secondary', 'btn-warning');
+                    }
+                    else{
+                        this.classList.replace('btn-secondary', 'btn-danger');
+                    }
+                    this.classList.replace('unselected','selected');
                 });
-                if(this.getAttribute('data-fam-level') == 1){
-                    this.classList.replace('btn-secondary', 'btn-success');
-                }
-                else if(this.getAttribute('data-fam-level') == 2){
-                    this.classList.replace('btn-secondary', 'btn-warning');
-                }
-                else{
-                    this.classList.replace('btn-secondary', 'btn-danger');
-                }
-                this.classList.replace('unselected','selected');
             }
         })
         .catch(error => {

@@ -306,8 +306,6 @@ def create_simulator(request):
             words_ids_list = words_ids_list.split(",")
             word_object_list = [Word.objects.get(id = word_id) for word_id in words_ids_list]
             test_to_edit = generate_simulator_using_words(word_object_list,topic)
-            # Assuming OpenAI API handling is in another function
-            # api_response = send_to_openai_api(data)
             messages.success(request, "Your request has been sent successfully.")
             print(f"Creating a test with according to:\n{words_ids_list}\ntext topic: {topic}")
             print(f"Generated test:\n{test_to_edit}")
@@ -408,27 +406,11 @@ def generate_simulator_using_words (words_list : list[Word], topic: str) -> list
     return test
 
 def fetch_unused_words(request):
-    words_list = []
     words = Word.objects.exclude(word_level = 1).filter(is_used = False).all()
-    # try:
-    #     words = Word.objects.exclude(word_level = 1).filter(is_used = False).all()  # pd.read_csv(r"C:\Users\ofeko\Desktop\Python\PyPdf2\words.csv")
-    #     for word in words:
-    #         try:
-    #             words_list.append(word)
-    #         except:
-    #             pass
-    #     if len(words_list) < 18:
-    #         words_list += list(Word.objects.exclude(word_level = 1).all())
-    #     words_list = unused_words(words_list)
-    # except:
-    #     all_words = list(Word.objects.exclude(word_level = 1).all())
-    #     words_list = unused_words(all_words)
 
     search_query = request.GET.get('q', '')
     
     not_used_words = [{"id":word.id,"text":word.eng_word} for word in words]
-    # for word in words:
-    #     not_used_words.append({"id":word.id, "text":word.eng_word})
 
     if search_query:
         not_used_words = [word for word in not_used_words if search_query.lower() in word["text"].lower()]
@@ -438,9 +420,6 @@ def fetch_unused_words(request):
 ### Select only the unused words from a list of words
 def unused_words(word_list: list[Word]) -> list[Word]:
     new_words_list = list(Word.objects.filter(is_used = False).all())
-    # for word in word_list:
-    #     if not word.is_used:
-    #         new_words_list.append(word)
     return new_words_list
 
 

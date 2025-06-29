@@ -39,7 +39,6 @@ to run the project
 
 ### ToDos
 
-* english_vocab: Fix loading time - each level loaded on its own
 * Synchronize style/css
 * fix requirements.txt
 * Add Simulators

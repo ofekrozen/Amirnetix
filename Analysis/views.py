@@ -77,16 +77,19 @@ def analyze_simulator(request,simulator_id):
         print("unsuccessful")
         return index(request)
 @login_required(login_url='login')
-def english_vocab(request):
+def english_vocab(request, words_level:int = 1):
     # Get selected level from query parameter
+    print(f"Selected words level: {words_level}")
     selected_level = request.GET.get('level')
     if selected_level:
         words = Word.objects.filter(word_level=selected_level).all()
     else:
-        words = Word.objects.all()
+        words = Word.objects.filter(word_level = words_level).all() # Update to get first level only if no level is selected
+    words = Word.objects.filter(word_level = words_level).all()
     
     user = request.user
     if user:
+        # user_knowledge1 = Student_Word_Knowledge.objects.filter(student = user, word__word_level = selected_level).all()
         user_knowledge = Student_Word_Knowledge.objects.all()
         words_list = []
         for word in words:
@@ -109,7 +112,7 @@ def english_vocab(request):
     return render(request, 'Analysis/english_vocab.html', {
         'words': words,
         'levels': levels,
-        'selected_level': selected_level,
+        'selected_level': words_level,
         'words_list' : words_list,
         'fam_levels' : fam_levels
     })
