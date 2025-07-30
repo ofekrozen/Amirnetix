@@ -40,5 +40,7 @@ to run the project
 ### ToDos
 
 * Synchronize style/css
+* fix simulator first sentence completion time
+* fix simulator finish/next chapter after end of time
 * fix requirements.txt
 * Add Simulators

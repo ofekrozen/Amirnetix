@@ -76,6 +76,7 @@ def analyze_simulator(request,simulator_id):
     except:
         print("unsuccessful")
         return index(request)
+    
 @login_required(login_url='login')
 def english_vocab(request, words_level:int = 1):
     # Get selected level from query parameter

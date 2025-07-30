@@ -130,6 +130,7 @@
     const navDiv = document.querySelector('#nav-div');
     const finishDiv = document.querySelector('#finish-div');
     const finishBtn = document.querySelector("#finish-btn");
+    const lastChapter = document.querySelector('.chapter-progress-step:last-child').getAttribute('data-order');
 
     // State Variables
     let currentChapterCtr = 0; // Current number of Chapter
@@ -144,6 +145,28 @@
     document.addEventListener('DOMContentLoaded', function () {
         nextChapter();
     });
+
+    function finishSimulator(){
+        console.log("Finishing Simulator");
+        user_answers_input = document.querySelector('#user_answers');
+        answer_times = document.querySelector('#answer_times');
+        user_answers_input.value = JSON.stringify(answerJson);
+        answer_times.value = JSON.stringify(timesJson);
+        finishForm = document.querySelector('#finishForm').submit();
+    }
+
+    function finishSimulatorClick(){
+        if (window.confirm('Are you sure you want to finish the simulator before the time is over?')){
+            finishSimulator();
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    function exitSimulatorClick(){
+        return window.confirm("Are you sure you want to exit the simulator?");
+    }
 
     // Show/Hide Buttons Based on Current State
     function showButtons(){
@@ -205,16 +228,21 @@
 
     // Navigate to Next Chapter
     function nextChapter(){
+        console.log("Moving to next chapter");
         // Hide Reading Text of Previous Chapter
         if(currentMaxes.getAttribute('data-type') === 'RC'){
             document.querySelector('#reading-text-' + currentChapterCtr).style.display = "none";
         }
-
+        
         currentChapterCtr += 1;
         currentQuestionCtr = 1;
         console.log(currentChapterCtr +" - " + currentQuestionCtr)
         updateChapterProgress();
         updateCurrentMaxes();
+
+        if (currentChapterCtr > 6){
+            finishSimulator();
+        }
 
         // Show Reading Text for Current Chapter if Applicable
         if(currentMaxes.getAttribute('data-type') === 'RC'){
@@ -249,13 +277,20 @@
             const minutes = Math.floor(chapterTime / 60);
             const seconds = chapterTime % 60;
             timer.innerHTML = `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
+            
+            chapterTime--;
             if (chapterTime <= 0) {
                 clearInterval(timerInterval);
-                nextChapter(); 
+                if (currentChapterCtr < 6) {
+                    console.log("Time's up! Moving to the next chapter.");
+                    nextChapter(); 
+                }
+                else {
+                    console.log("Time's up! Finishing the simulator.");
+                    finishSimulator();
+                }
             }
 
-            chapterTime--;
         }, 1000);
     }
 
@@ -317,26 +352,5 @@
             document.querySelector('#question-progress-step-' + questionOrder).classList.add('answered');
         });
     });
-
-    function finishSimulator(){
-        user_answers_input = document.querySelector('#user_answers');
-        answer_times = document.querySelector('#answer_times');
-        user_answers_input.value = JSON.stringify(answerJson);
-        answer_times.value = JSON.stringify(timesJson);
-        finishForm = document.querySelector('#finishForm').submit;
-    }
-
-    function finishSimulatorClick(){
-        if (window.confirm('Are you sure you want to finish the simulator before the time is over?')){
-            finishSimulator();
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-    function exitSimulatorClick(){
-        return window.confirm("Are you sure you want to exit the simulator?");
-    }
 </script>
 {% endblock %}
