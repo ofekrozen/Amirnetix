@@ -44,14 +44,14 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 - Clearly require only one correct word from the list – **that one word should be a significantly better fit than any other option**.
                 - Include four answer choices:
                 • One correct word (from the list).
-                • One distractor (plausible but not fully correct).
+                • One distractor (plausible but clearly not correct).
                 • Two unrelated or clearly incorrect words (grammatically valid but not fitting the sentence).
 
                 **Very Important Guidelines**:
                 1. The correct answer must be **the best and clearest choice**. No ambiguity allowed.
                 2. The correct word should appear in only one question.
                 3. The other three answer options must **NOT** be taken from the given list.
-                4. Only **one** distractor per question should be even slightly plausible; the other two should be clearly wrong.
+                4. Only **one** distractor per question should be plausible but clearly not the correct answer; the other two should be clearly wrong.
                 5. The position of the correct answer (c) must vary between questions.
                 6. Do **not** reuse distractor words across questions.
                 7. Output must be **only** a valid JSON object in the following format – with no extra text:
@@ -164,12 +164,23 @@ def Generate_Reading_Comprehension_Chapter(topic: str):
     messages[1]['content'] = f'''
         {generated_text}
         Generate five Reading Comprehension questions to measure the user's understanding of the above text.
-        Three questions should be SPECIFIC, focusing on particular details in the text, 
-        and two questions should be GENERAL, focusing on the overall understanding of the text.
+        The options for types of questions are:
+         * An appropriate title for this text would be...
+         * The main idea of the text is...
+         * The main purpose of the _ paragraph is to...
+         * It can be inffered that "(a specific sentence from the text)" means that...
+         * according to the text, the author believes that...
+         * according to the _ paragraph...
+         * "(a specific sentence from the text)" is an example of...
+         * "(a specific sentence from the text)" can be restated as...
+        
+        The correct answer should be the best and clearest choice. No ambiguity allowed.
+        There should be one correct answer, one distractor (plausible but clearly not correct), and two unrelated or clearly incorrect answers (grammatically valid but not fitting the question).
     '''
     messages[2]['content'] = '''
         The output should be in a JSON array format without any additional characters.
-        Use both specific and general questions: specific questions - trying to check if the student manages to understand the particular reffered sentence/word in the text, general questions - Trying to check if the student manages to fully understand the text as a hole.
+        Use four unique types of questions, and one question should be a Restatement question.
+
         Here's an example for the format:
         {"chapter": [{
             'q' : (your generated question),
@@ -224,7 +235,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 The user will give you a list of words. Each question will use one of the words in the original statement, or in one of the answers.
                 The restatement questions should be formatted in a JSON array format without any additional characters. 
                 A Restatement question is a statement in an academic level of English, made of a sophisticated sentence or two, about a random subject, and the answer options are statements that potentially could replace the original statement.
-                The correct answer should replace the statement perfectly by it's meaning. One other answer option should be close, and the two other answer options should not be close. 
+                The correct answer should replace the statement perfectly by it's meaning. One other answer option should be close by meaning, and the two other answer options should not be close by meaning at all. 
                 Here's an example for the format:
                 {"chapter":[{
                 "q" : (The generated phrase to restate),

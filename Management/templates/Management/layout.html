@@ -22,12 +22,21 @@
     <header>
         <!-- <div class="container"> -->
             <div class="header-container">
+            <nav>
+                <ul>
                 {% if user.is_authenticated %}
-                    <a href="/logout" class="li-a">התנתקות</a>
+                    <li><a href="/logout" class="li-a">התנתקות</a></li>
                 {% else %}
+<<<<<<< Updated upstream
                     <a href="/register" class="btn btn-outline-primary">הרשמה</a>
                     <a href="/login" class="btn btn-outline-secondary">התחברות</a>
+=======
+                    <li><a href="/register" class="li-a">הרשמה</a></li>
+                    <li><a href="/login" class="li-a">התחברות</a></li>
+>>>>>>> Stashed changes
                 {% endif %}
+                </ul>
+            </nav>
             </div>
             <div class="header-container">
             <nav>

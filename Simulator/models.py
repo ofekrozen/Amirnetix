@@ -116,7 +116,7 @@ class SimulatorAttempt(models.Model):
         for ans in user_answers:
             if ans.selected_option.is_correct:
                 cnt_correct += 1
-        return round(cnt_correct/question_cnt,2)
+        return round(cnt_correct/question_cnt,2)*100
     
     def get_user_answer(self, question):
         """

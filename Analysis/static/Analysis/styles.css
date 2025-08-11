@@ -123,10 +123,12 @@ nav ul li {
     justify-content: space-between;
     background-color: #fff;
     padding: 20px;
+    padding-bottom: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     align-items: center;
+    min-height: 120px;
 }
 
 .simulator-card h3 {
@@ -375,6 +377,36 @@ nav ul li {
     color: white;
 }
 
+/* Index - Simulator List */
+.simulator-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.simulator-details h4 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #002244;
+}
+@media screen and (max-width: 900px) {
+    .simulator-card {
+        flex-direction: column;
+        align-items: center;
+    }
+    .simulator-details h4 {
+        font-size: 1.2em;
+    }
+    
+}
+
+.score-analyze-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
 
 
 /* ### Analyze Simulator ### */

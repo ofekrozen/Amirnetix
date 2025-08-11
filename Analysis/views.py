@@ -7,9 +7,10 @@ from Simulator.models import *
 from Auth.models import *
 from Management.models import *
 
+
 # Create your views here.
 def index(request):
-    simulator_attempts = SimulatorAttempt.objects.all()
+    simulator_attempts = SimulatorAttempt.objects.all().order_by('-start_time')
     return render(request, 'Analysis/index.html',{
         "simulator_attempts" : simulator_attempts
     })

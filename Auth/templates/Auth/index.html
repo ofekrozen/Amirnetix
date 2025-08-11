@@ -1,12 +1,94 @@
 {% extends "Auth/layout.html" %}
 {% block body %}
-<div class="sample-simulator-div">
+{% if user.is_authenticated %}
+<div class="home-page-div">
+    <div class="home-page-section">
+        <h3>ברוך הבא <span class="ai-span">{{user.username}}</span>!</h3>
+    </div>
+    <h3>הסטטיסטיקות שלך</h3>
+    <div class="home-page-section">
+        <h3>סימולטורים</h3>
+        <div>{{average_score}}</div>
+    </div>
+    <div class="home-page-section">
+        <h3>אוצר מילים</h3>
+        <div class="fam-boxes">
+            <div class="fam-box perfect-box">Perfect: {{ fam_counts.perfect }}</div>
+            <div class="fam-box partially-box">Partially: {{ fam_counts.partially }}</div>
+            <div class="fam-box not-box">Not at All: {{ fam_counts.not_at_all }}</div>
+        </div>
+        <canvas id="wordStatsChart" style="max-width: 70%; height: 200px;"></canvas>
+
+    </div>
+    <div class="home-page-section">
+        <h3>הסימולטור הבא שלך</h3>
+    </div>
+
+{% else %}
+<div class="home-page-div">
 <h2>סימולטור לדוגמה</h2>
-    <div class="sample-simulator-section">
+    <div class="home-page-section">
         <h3>נסה את סימולטור ה- <span class="ai-span">AI</span> לדוגמה</h3>
         <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> {% csrf_token %}
             <button class="btn btn-success">התחל סימולטור לדוגמה</button>
         </form>
     </div>
 </div>
+{% endif %}
+
 {% endblock %}
+{% if user.is_authenticated %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const levelLabels = {{ level_labels|safe }};
+    const perfectData = {{ perfect_data|safe }};
+    const partiallyData = {{ partially_data|safe }};
+    const notAtAllData = {{ not_at_all_data|safe }};
+
+    const ctx = document.getElementById('wordStatsChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: levelLabels,
+            datasets: [
+                {
+                    label: 'Perfect',
+                    data: perfectData,
+                    backgroundColor: '#4caf50'
+                },
+                {
+                    label: 'Partially',
+                    data: partiallyData,
+                    backgroundColor: '#ff9800'
+                },
+                {
+                    label: 'Not at All',
+                    data: notAtAllData,
+                    backgroundColor: '#f44336'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Word Familiarity by Level'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+{% endblock %}
+{% endif %}

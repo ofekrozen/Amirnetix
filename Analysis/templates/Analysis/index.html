@@ -26,6 +26,7 @@
                 <option value="restatements">Restatements</option>
                 <option value="reading-comprehension">Reading Comprehension</option>
             </select> -->
+            <input type="date" id="date-filter" placeholder="Filter by Date" onchange="filterSimulators()">
         </div>
 
         <!-- Simulator Cards Section -->
@@ -33,15 +34,17 @@
         <div id="simulator-list" class="simulator-list">
         {% if simulator_attempts %}
         {% for simulator_attempt in simulator_attempts %}
-            <div class="simulator-card" data-level="{{simulator_attempt.simulator.level}}">
-                <div>
-                    <h3>{{simulator_attempt.simulator.name}}</h3>
-                    <p class="details">{{simulator_attempt.start_time}}</p>
+            <div class="simulator-card" data-level="{{simulator_attempt.simulator.level}}" data-date="{{simulator_attempt.start_time|date:'Y-m-d' }}">
+                <div class="simulator-details">
+                    <h4 class="simulator-title">{{simulator_attempt.simulator.name}}</h4>
+                    <p class="details">{{simulator_attempt.start_time | date:"d/m/Y"}}</p>
                 </div>
+                <div class="score-analyze-container">
+                <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.id%}" class="btn btn-primary analyze-btn">ניתוח סימולטור</a>
                 <div class="scores">
-                    <p class="details">{{simulator_attempt.get_success_rate}}%</p>
+                    <p class="details">{{simulator_attempt.get_success_rate|floatformat:2|floatformat:0 }}% הצלחה</p>
                 </div>
-                <a href="{% url 'analyze_simulator' simulator_id=simulator_attempt.id%}" class="btn btn-primary">ניתוח סימולטור</a>
+                </div>
             </div>
         {% endfor %}
         
@@ -52,6 +55,7 @@
     <script>
         function filterSimulators() {
             const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const dateFilter = document.getElementById('date-filter').value;
             // const levelFilter = document.getElementById('level-filter').value;
             // const subjectFilter = document.getElementById('subject-filter').value;
             // const statusFilter = document.getElementById('status-filter').value;
@@ -60,6 +64,7 @@
 
             simulators.forEach(function(simulator) {
                 const name = simulator.querySelector('h3').innerText.toLowerCase();
+                const dt = simulator.getAttribute('data-date').startsWith(dateFilter);
                 // const level = simulator.getAttribute('data-level');
                 // const subject = simulator.getAttribute('data-subject');
                 // const status = simulator.getAttribute('data-status');
@@ -71,6 +76,7 @@
                     // (levelFilter === 'all' || level === levelFilter) &&
                     // (subjectFilter === 'all' || subject === subjectFilter) &&
                     // (statusFilter === 'all' || status === statusFilter)
+                    && (dateFilter === '' || dt)
                 ) {
                     simulator.style.display = 'flex';
                 } else {
