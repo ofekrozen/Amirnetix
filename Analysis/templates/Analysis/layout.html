@@ -14,15 +14,6 @@
 <body>
     <!-- Header -->
     <header>
-<<<<<<< Updated upstream
-        <!-- <div class="container"> -->
-            <div class="header-container">
-                {% if user.is_authenticated %}
-                    <a href="/logout" class="li-a">התנתקות</a>
-                {% else %}
-                    <a href="/register" class="btn btn-outline-primary">הרשמה</a>
-                    <a href="/login" class="btn btn-outline-secondary">התחברות</a>
-=======
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
             aria-controls="mainNav" aria-expanded="false" aria-label="פתח תפריט" style="color: white;">
             <span class="navbar-toggler-icon">☰</span>
@@ -35,7 +26,6 @@
                 <li><a class="li-a" href="/Analysis/english_vocab/1">אוצר מילים</a></li>
                 {% if user.is_authenticated and user.is_superuser %}
                     <li><a class="li-a" href="/Management">עריכת סימולטורים</a></li>
->>>>>>> Stashed changes
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li><a href="/logout" class="li-a">התנתקות</a></li>
