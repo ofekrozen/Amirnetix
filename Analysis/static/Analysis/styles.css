@@ -334,37 +334,7 @@ nav ul li {
         width: 100%;
     }
 }
-
-/* Level Filter Styling */
-/* .level-filter {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.level-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #005bb5;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 1em;
-    font-weight: bold;
-}
-
-.level-btn:hover {
-    background-color: #0073e6;
-    color: white;
-}
-
-.level-btn.active {
-    background-color: #003f7f;
-} */
-
-/* NEW LEVEL FILTER*/
+/* Level Filter */
 /* ===== Mobile-first ===== */
 .level-filter{
   display:grid;
@@ -373,7 +343,7 @@ nav ul li {
   gap:10px;
   margin-bottom:20px;
 }
-
+ 
 .level-nav-btn{
   appearance:none;
   border:1px solid #ddd;
