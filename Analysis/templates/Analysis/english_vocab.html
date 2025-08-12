@@ -4,16 +4,28 @@
 
 <div class="container mt-4">
     <h2 class="mb-4">Learn English Words</h2>
-    <!-- {% if words_list %}
-        {% for word in words_list %}
-        word: {{word.word}} ; familiarity: {{word.familiarity}}
-        {% endfor %}
-    {% endif %} -->
-    <!-- Level filter buttons -->
-    <div class="level-filter">
+
+    <!-- <div class="level-filter">
+        <button class="btn btn-secondary level-nav-btn" id="btn-prev-level" style="display: none;"><</button>
         {% for level in levels %}
-            <a href="/Analysis/english_vocab/{{level}}" class="btn level-btn" data-level="{{level}}">Level {{level}}</a>
+            <a href="/Analysis/english_vocab/{{level}}" class="btn level-btn" id="level-btn-{{level}}" data-level="{{level}}">Level {{level}}</a>
         {% endfor %}
+        <button class="btn btn-secondary level-nav-btn" id="btn-next-level" style="display: none;">></button>
+    </div> -->
+
+    <div class="level-filter" dir="rtl" data-chunk="3">
+        <button class="btn btn-secondary level-nav-btn" id="btn-prev-level" aria-label="רמות קודמות">‹</button>
+
+        <div class="level-wrap">
+            {% for level in levels %}
+            <a href="/Analysis/english_vocab/{{level}}"
+                class="btn level-btn"
+                id="level-btn-{{level}}"
+                data-level="{{level}}">Level {{level}}</a>
+            {% endfor %}
+        </div>
+
+        <button class="btn btn-secondary level-nav-btn" id="btn-next-level" aria-label="רמות הבאות">›</button>
     </div>
 
     <div class="container-title">
@@ -77,25 +89,80 @@
     console.log("Selected Level: " + selectedLevel);
     var selectedFam = -1;
     const title = document.querySelector('.title-header');
+
     document.addEventListener('DOMContentLoaded',()=>{
+        
+        // Filter by Level - Responsiveness
+        var screenWidth = window.innerWidth;
+        const level_btns = Array.from(document.querySelectorAll('.level-btn'));
+        const btnPrev = document.getElementById('btn-prev-level');
+        const btnNext = document.getElementById('btn-next-level');
+        var levelFilterSetNumber = 0
+
+        function nextBtnClick(){
+            levelFilterSetNumber++;
+            displayLevelFilters();
+        }
+        function prevBtnClick(){
+            levelFilterSetNumber--;
+            displayLevelFilters();
+        }
+        // Display 3 level-btns at a time
+        function displayLevelFilters(){
+        if (screenWidth <= 768) {
+            btnNext.style.display = 'inline-block';
+            btnPrev.style.display = 'inline-block';
+            // Mobile view
+            if (level_btns.length <= (3*levelFilterSetNumber) + 3) {
+                btnPrev.disabled = false;
+                btnNext.disabled = true;
+            }else {
+                if (levelFilterSetNumber == 0){
+                    btnPrev.disabled = true;
+                    btnNext.disabled = false;
+                }
+                else{
+                    btnPrev.disabled = false;
+                    btnNext.disabled = false;
+                }
+            }
+
+            level_btns.forEach(btn => {
+                
+                btn.style.display = 'none'; // Hide all level buttons
+            });
+            level_btns[levelFilterSetNumber*3].style.display = 'inline-block'; // Show only the first level button
+            level_btns[(levelFilterSetNumber*3)+1].style.display = 'inline-block'; // Show only the first level button
+            level_btns[(levelFilterSetNumber*3)+2].style.display = 'inline-block'; // Show only the first level button
+        } else {
+            // Desktop view
+            btnPrev.style.display = 'none';
+            btnNext.style.display = 'none';
+            level_btns.forEach(btn => {
+                btn.style.display = 'inline-block'; // Show all level buttons
+            });
+        }
+    }
+    btnNext.onclick = nextBtnClick;
+    btnPrev.onclick = prevBtnClick;
+    displayLevelFilters();
+    window.addEventListener('resize', () => {
+        screenWidth = window.innerWidth;
+        displayLevelFilters();
+        })
+
+        console.log("Screen Width: " + screenWidth);
+        console.log("Level Buttons: " + level_btns.length);
+
+        
         selectedLevel = document.getElementById('selected-level').value;
         title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
         // Initially filter only level 1 words
         document.querySelectorAll('.word').forEach(word => {
             word.style.display = word.getAttribute('data-word-level') === selectedLevel ? 'block' : 'none';
         });
-    });
 
-    // Filter by level
-    // document.querySelectorAll('.level-btn').forEach(button => {
-    //     button.addEventListener('click', () => {
-    //         selectedLevel = button.getAttribute('data-level');
-    //         title.innerHTML = "מילים באנגלית רמה "+ selectedLevel;
-    //         document.querySelectorAll('.word').forEach(word => {
-    //             word.style.display = word.getAttribute('data-word-level') === ""+selectedLevel? 'block' : 'none';
-    //         });
-    //     });
-    // });
+    });
 
     // Filter by familiarity
     document.querySelectorAll('.fam-filter-btn').forEach(button =>{
