@@ -77,6 +77,17 @@ def analyze_simulator(request,simulator_id):
     except:
         print("unsuccessful")
         return index(request)
+    
+def delete_simulator_attempt(request, attempt_id):
+    try:
+        attempt = SimulatorAttempt.objects.get(id=attempt_id)
+        attempt.delete()
+        return index(request)
+    except SimulatorAttempt.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Simulator attempt not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
 @login_required(login_url='login')
 def english_vocab(request, words_level:int = 1):
     # Get selected level from query parameter
