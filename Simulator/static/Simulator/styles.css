@@ -153,6 +153,7 @@ nav ul li {
     background-color: #218838;
 } */
 
+
 /* ##### Simulator ##### */
 .div-simulator{
     direction: ltr;
@@ -213,6 +214,12 @@ nav ul li {
 }
 
 /* Question & Answers */
+.text-question-answers-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
 .question-container {
     margin: 20px;
 }

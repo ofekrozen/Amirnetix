@@ -1,4 +1,4 @@
-{% extends "Simulator/layout.html" %}
+{% extends "Simulator/simulator_layout.html" %}
 {% block header %} - Simulator{% endblock %}
 {% block body %}
 <div class="div-simulator">
@@ -24,6 +24,7 @@
                 style="display: none;">
             </div>
 
+            <div class="text-question-answers-container">
             <!-- Text for Reading Comprehension chapter -->
             {% if chapter.chapter_type == 'RC' %}
                 <div class="reading-text" id="reading-text-{{ chapter.order }}">
@@ -82,6 +83,7 @@
                         {% endfor %}
                     </ul>
                 {% endfor %}
+            </div>
             </div>
         {% endfor %}
         
@@ -143,6 +145,10 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', function () {
         nextChapter();
+
+        window.addEventListener('resize', function() {
+            updateChapterProgress();
+        });
     });
 
     // Show/Hide Buttons Based on Current State
@@ -200,6 +206,18 @@
     function updateChapterProgress(){
         chapterProgressSteps.forEach(step => {
             step.classList.toggle('active', step.getAttribute('data-order') == currentChapterCtr);
+            if(window.innerWidth < 768){
+                if (step.getAttribute('data-order') >= currentChapterCtr-1 && step.getAttribute('data-order') <= currentChapterCtr+1) {
+                    step.style.display = 'inline-block';
+                    step.style.width = 'auto';
+                    
+                } else {
+                    step.style.display = 'none';
+                }
+            }
+            else {
+                step.style.display = 'inline-block';
+            }
         });
     }
 
