@@ -7,7 +7,6 @@ body {
 
 h1, h2, h3 {
     font-family: 'Poppins', sans-serif;
-    font-weight: bolder;
 }
 
 /* .container {
@@ -174,6 +173,13 @@ nav ul li {
 
 /* Home Page */
 /* .sample-simulator-div{ */
+.system_message {
+    color: #ff0000; /* Red color for system messages */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .home-page-div{
     display: flex;
     flex-direction: column;
@@ -227,6 +233,6 @@ nav ul li {
     text-align: center;
     font-weight: bold;
 }
-.perfect-box { background-color: #4caf50; }
-.partially-box { background-color: #ff9800; }
-.not-box { background-color: #f44336; }
+.perfect-box { background-color: #6FA87A; }
+.partially-box { background-color: #CFAE52; }
+.not-box { background-color: #C46A6A; }

@@ -5,11 +5,23 @@
     <div class="home-page-section">
         <h3>ברוך הבא <span class="ai-span">{{user.username}}</span>!</h3>
     </div>
-    <h3>הסטטיסטיקות שלך</h3>
     <div class="home-page-section">
-        <h3>סימולטורים</h3>
-        <div>{{average_score}}</div>
+        <h3>הסימולטור הבא שלך</h3>
+        {% if next_simulator %}
+        <div class="simulator-card" data-level="{{next_attempt.level}}" data-status="done">
+            <div class="simulator-details">
+                <h4>{{next_simulator.name}}</h4>
+            </div>
+            <div class="simulator-actions">
+                <a href="{% url 'start_simulator' simulator_id=next_simulator.id %}" class="btn btn-success">התחל סימולטור</a>
+            </div>
+        </div>
+        {% else %}
+            <p>אין סימולטורים זמינים כרגע.</p>
+        {% endif %}
     </div>
+    <h3>הסטטיסטיקות שלך</h3>
+    
     <div class="home-page-section">
         <h3>אוצר מילים</h3>
         <div class="fam-boxes">
@@ -20,23 +32,25 @@
         <canvas id="wordStatsChart" style="max-width: 70%; height: 200px;"></canvas>
 
     </div>
-    <div class="home-page-section">
-        <h3>הסימולטור הבא שלך</h3>
-    </div>
 
 {% else %}
 <div class="home-page-div">
 <div class="hero-section">
     <h1>Amirnetix</h1>
+    {% if system_message %}
+    <p class="system_message">{{system_message}}</p>
+    {% endif %}
     <p>ברוכים הבאים לאתר התכוננות למבחן האמירנט המקיף והזול בארץ.</p>
     <p>התחילו ללמוד בדרך היעילה ביותר ולשפר את אוצר המילים, אבל <b>רק</b> במילים שאתם חייבים לדעת למבחן.</p>
-    <h2>להרשמה</h2>
+    <h2>להרשמה\התחברות</h2>
     <a class="btn btn-primary" href="{% url 'register' %}">הרשמה</a>
+    <a class="btn btn-secondary" href="{% url 'login' %}">התחברות</a>
 </div>
 <h2>סימולטור לדוגמה</h2>
     <div class="home-page-section">
         <h3>נסה את סימולטור ה- <span class="ai-span">AI</span> לדוגמה</h3>
-        <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> {% csrf_token %}
+        <form method="post" action="{% url 'start_simulator' simulator_id=6 %}"> 
+            {% csrf_token %}
             <button class="btn btn-success">התחל סימולטור לדוגמה</button>
         </form>
     </div>
@@ -62,26 +76,44 @@
                 {
                     label: 'Perfect',
                     data: perfectData,
-                    backgroundColor: '#4caf50'
+                    backgroundColor: '#6FA87A'
                 },
                 {
                     label: 'Partially',
                     data: partiallyData,
-                    backgroundColor: '#ff9800'
+                    backgroundColor: '#CFAE52'
                 },
                 {
                     label: 'Not at All',
                     data: notAtAllData,
-                    backgroundColor: '#f44336'
+                    backgroundColor: '#C46A6A'
                 }
             ]
         },
         options: {
             responsive: true,
+            indexAxis: "y",
+            interaction: {
+                mode: 'nearest',   // find the closest element
+                intersect: true,   // require the pointer to be INSIDE the bar
+                axis: 'xy'         // consider both axes
+            },
+            elements: {
+                bar: { borderWidth: 2}
+            },
             plugins: {
                 title: {
                     display: true,
                     text: 'Word Familiarity by Level'
+                },
+                tooltip: {
+                    callbacks: {
+                        // If your values are integers like 75 -> "75%"
+                        label: (context) => {
+                            const value = context.parsed.x; // horizontal bar => value on x
+                            return `${context.dataset.label}: ${value}%`;
+                        }
+                    }
                 }
             },
             scales: {
@@ -90,6 +122,23 @@
                     ticks: {
                         precision: 0
                     }
+                }
+            },
+            scales: {
+                // Value axis (percentages)
+                x: {
+                    min: 0,
+                    max: 100, // optional: fix to 0–100
+                    ticks: {
+                        // Show ticks like 0%, 20%, 40%, ...
+                        callback: (value) => `${value}%`
+                        // For one decimal on ticks:
+                        // callback: (value) => `${Number(value).toFixed(1)}%`
+                    }
+                },
+                // Category axis (levels)
+                y: {
+                    // keep defaults; no % here since these are your level labels
                 }
             }
         }

@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import CustomUserCreationForm, CustomLoginForm
 from django.contrib.auth import logout
 from Management.models import Student_Word_Knowledge, Word
-from Simulator.models import SimulatorAttempt
+from Simulator.models import SimulatorAttempt, Simulator
 
 def register(request):
     if request.method == 'POST':
@@ -72,17 +72,17 @@ def index(request):
             'level_stats': level_stats
         }
 
-                # Reorganize data for chart.js
+        # Reorganize data for chart.js
         level_labels = []
         perfect_data = []
         partially_data = []
         not_at_all_data = []
-
+        print("level_stats", level_stats)
         for level, stats in sorted(level_stats.items()):
             level_labels.append(f"Level {str(level)}")
-            perfect_data.append(stats["perfect"])
-            partially_data.append(stats["partially"])
-            not_at_all_data.append(stats["not_at_all"])
+            perfect_data.append(round((stats["perfect"]/stats["total_in_level"]) * 100,0) if stats["total_in_level"] > 0 else 0)
+            partially_data.append(round((stats["partially"])/stats["total_in_level"] * 100,0) if stats["total_in_level"] > 0 else 0)
+            not_at_all_data.append(round((stats["not_at_all"]) / stats["total_in_level"] * 100,0) if stats["total_in_level"] > 0 else 0)
 
         context.update({
             'level_labels': level_labels,
@@ -103,6 +103,18 @@ def index(request):
         else:
             average_score = "עדיין לא ביצעת סימולטור!"
         context['average_score'] = average_score
+
+        # Next Simulator Offer
+        already_done = SimulatorAttempt.objects.filter(user=user).all()
+        all_simulators = list(Simulator.objects.exclude(name__in = ("fictive simulator", "Sample Simulator") ).all())
+        for sim in already_done:
+            if sim.simulator in all_simulators:
+                all_simulators.remove(sim.simulator)
+        if len(all_simulators) > 0:
+            next_simulator = all_simulators[0]
+            context['next_simulator'] = next_simulator
+        else:
+            context['next_simulator'] = already_done.order_by('-date')[0].simulator if already_done else None
 
         return render(request, 'Auth/index.html', context)
     return render(request,'Auth/index.html')

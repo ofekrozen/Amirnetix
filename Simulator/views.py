@@ -12,7 +12,7 @@ def index(request):
     all_simulators = Simulator.objects.exclude(id__in = simulators_to_exclude)
     all_simulator_attempts = []
     user = request.user
-    if user is not None:
+    if user.is_authenticated:
         for simulator in all_simulators:
             if simulator.get_last_attempt(user) is not None:
                 all_simulator_attempts.append({'simulator' : simulator, 'last_attempt' : simulator.get_last_attempt(user)})
@@ -24,13 +24,13 @@ def index(request):
         return render(request,'Simulator/index.html', {
             'all_simulators' : all_simulator_attempts
         })
-    return render(request,'Simulator/index.html',{
-        'all_simulators' : all_simulator_attempts
+    return render(request,'Auth/index.html',{
+        
     })
 
 def start_simulator(request,simulator_id : int):
     simulator = Simulator.objects.get(id=int(simulator_id))
-    if request.user:
+    if request.user.is_authenticated:
         simulator_attempt = SimulatorAttempt.objects.create(user = request.user,simulator = simulator)
         return render(request,'Simulator/simulator.html',{
             'simulator' : simulator,
@@ -43,6 +43,10 @@ def start_simulator(request,simulator_id : int):
 def finish_simulator(request):
     if request.method == "POST":
         user = request.user
+        if not user.is_authenticated:
+            return render(request, 'Auth/index.html', {
+                "system_message": "תתחבר ותוכל לתחקר את המבחנים שלך ברמה הגבוהה ביותר!"
+            })
         answer_dict = None
         times_dict = None
         attempt = None
@@ -59,7 +63,7 @@ def finish_simulator(request):
                 answer_dict = json.loads(value)
             elif key.strip() == "answer_times":
                 times_dict = json.loads(value)
-            elif key.strip() == "attempt_id" and user is not None:
+            elif key.strip() == "attempt_id" and user.is_authenticated:
                 attempt = SimulatorAttempt.objects.get(user = user,id = int(value.strip()))
         attempt.end_time = finish_time
         attempt.save()

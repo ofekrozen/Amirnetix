@@ -52,7 +52,7 @@ def Generate_Sentence_Completion_Chapter(words_list: list[str]):
                 2. The correct word should appear in only one question.
                 3. The other three answer options must **NOT** be taken from the given list.
                 4. Only **one** distractor per question should be plausible but clearly not the correct answer; the other two should be clearly wrong.
-                5. The position of the correct answer (c) must vary between questions.
+                5. For each question, randomize the correct answer’s (c) position among 1–4, ensuring an even distribution throughout the test.
                 6. Do **not** reuse distractor words across questions.
                 7. Output must be **only** a valid JSON object in the following format – with no extra text:
 
@@ -180,6 +180,7 @@ def Generate_Reading_Comprehension_Chapter(topic: str):
     messages[2]['content'] = '''
         The output should be in a JSON array format without any additional characters.
         Use four unique types of questions, and one question should be a Restatement question.
+        For each question, randomize the correct answer’s (c) position among 1–4, ensuring an even distribution throughout the test.
 
         Here's an example for the format:
         {"chapter": [{
@@ -236,6 +237,7 @@ def Generate_Restatement_Chapter(words_list: list[str]):
                 The restatement questions should be formatted in a JSON array format without any additional characters. 
                 A Restatement question is a statement in an academic level of English, made of a sophisticated sentence or two, about a random subject, and the answer options are statements that potentially could replace the original statement.
                 The correct answer should replace the statement perfectly by it's meaning. One other answer option should be close by meaning, and the two other answer options should not be close by meaning at all. 
+                For each question, randomize the correct answer’s (c) position among 1–4, ensuring an even distribution throughout the test.
                 Here's an example for the format:
                 {"chapter":[{
                 "q" : (The generated phrase to restate),

@@ -111,6 +111,13 @@
             <button class="btn btn-danger" type="submit" id="exit-btn" onclick="return exitSimulatorClick()">Exit Simulator</button>
         </form>
     </div>
+    {% else %}
+    <div class="exit-simulator">
+        <form id="exit-simulator-form" method="post" action="{% url 'home' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit" id="exit-btn" onclick="return exitSimulatorClick()">Exit Simulator</button>
+        </form>
+    </div>
     {% endif %}
 {% endif %}
 </div>
