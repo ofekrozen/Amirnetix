@@ -25,10 +25,3 @@
 * **HTML, CSS, JavaScript** (Frontend)
 * **SQLite** (Database)
 * **OpenAI API** for question generation and AI chat
-
-
-### ToDos
-
-* Synchronize style/css
-* fix requirements.txt
-* Add Simulators
