@@ -26,16 +26,6 @@
 * **SQLite** (Database)
 * **OpenAI API** for question generation and AI chat
 
-### To Use/Update
-go to the main folder Amirnetix (not Amirnetix/Amirnetix)
-* cd [your path]/Amirnetix
-Install requirements (if requirements.txt doesn't work, go to all .py files and download relevant libraries)
-* pip install -r requirements.txt
-Go to /Amirnetix/Amirnetix and create .env file
-* Inside .env enter your OPENAI_API_KEY = "your-openai-api-key"
-to run the project
-* python manage.py runserver
-
 
 ### ToDos
 
